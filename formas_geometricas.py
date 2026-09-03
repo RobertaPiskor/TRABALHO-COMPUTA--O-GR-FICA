@@ -74,9 +74,7 @@ class FormasGeometricas:
 
         return [[cosseno_angulo, seno_angulo, 0],[-seno_angulo, cosseno_angulo, 0],[0, 0, 1]]
 
-    def fazer_matriz_rotacao_centro_objeto(self,angulo_graus):
-        x_centro, y_centro = self.centro_poligono()
-
+    def fazer_matriz_rotacao_centro_objeto(self,angulo_graus, x_centro, y_centro):
         angulo = math.radians(angulo_graus)
         cosseno_angulo = math.cos(angulo)
         seno_angulo = math.sin(angulo)
@@ -102,8 +100,7 @@ class FormasGeometricas:
 
         return matriz_final
 
-    def fazer_matriz_escalonamento(self, Sx, Sy):
-        x_centro, y_centro = self.centro_poligono()
+    def fazer_matriz_escalonamento(self, Sx, Sy, x_centro, y_centro):
         matriz_ida = [[1, 0, 0],[0, 1, 0],[-x_centro, -y_centro, 1]]
         matriz_escalonamento = [[Sx, 0, 0],[0, Sy, 0],[0, 0, 1]]
         matriz_volta = [[1, 0, 0],[0, 1, 0],[x_centro, y_centro, 1]]

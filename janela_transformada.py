@@ -125,43 +125,43 @@ class JanelaTransformacoes:
 
     def realizar_transformacoes_forma(self):
         matriz_acomulada = None
+        x_centro, y_centro = self.elemento.centro_poligono()
         for i in range(len(self.transformacoes)):
-            if (self.transformacoes[i][0] == "translacao"):
-                matriz_transformada = self.elemento.fazer_matriz_translacao(self.transformacoes[i][1], self.transformacoes[i][2])
-                if (matriz_acomulada != None):
-                    matriz_resultado = FormasGeometricas.multiplicacao_matrizes(matriz_acomulada, matriz_transformada)
-                    matriz_acomulada = matriz_resultado
+            if self.transformacoes[i][0] == "translacao":
+                matriz_transformada = self.elemento.fazer_matriz_translacao(self.transformacoes[i][1],self.transformacoes[i][2])
+            elif self.transformacoes[i][0] == "rotacao_centro_objeto":
+                if matriz_acomulada is None:
+                    x_centro_atual = x_centro
+                    y_centro_atual = y_centro
                 else:
-                    matriz_acomulada = matriz_transformada
-            elif (self.transformacoes[i][0] == "rotacao_centro_objeto"):
-                if (matriz_acomulada != None):
-                    self.elemento.aplicar_matriz_transformacao(matriz_acomulada)
-                    matriz_acomulada = None
-                matriz_transformada = self.elemento.fazer_matriz_rotacao_centro_objeto(self.transformacoes[i][1])
-                matriz_acomulada = matriz_transformada
-            elif (self.transformacoes[i][0] == "escalonamento"):
-                if (matriz_acomulada != None):
-                    self.elemento.aplicar_matriz_transformacao(matriz_acomulada)
-                    matriz_acomulada = None
-                matriz_transformada = self.elemento.fazer_matriz_escalonamento(self.transformacoes[i][1], self.transformacoes[i][2])
-                matriz_acomulada = matriz_transformada
-            elif (self.transformacoes[i][0] == "rotacao_ponto_arbitrario"):
-                matriz_transformada = self.elemento.fazer_matriz_rotacao_ponto_arbritario(self.transformacoes[i][1], self.transformacoes[i][2], self.transformacoes[i][3])
-                if (matriz_acomulada != None):
-                    matriz_resultado = FormasGeometricas.multiplicacao_matrizes(matriz_acomulada, matriz_transformada)
-                    matriz_acomulada = matriz_resultado
+                    ponto_centro = [[x_centro, y_centro, 1]]
+                    novo_centro = FormasGeometricas.multiplicacao_matrizes(ponto_centro,matriz_acomulada)
+                    x_centro_atual = novo_centro[0][0]
+                    y_centro_atual = novo_centro[0][1]
+                matriz_transformada = self.elemento.fazer_matriz_rotacao_centro_objeto(self.transformacoes[i][1],x_centro_atual,y_centro_atual)
+            elif self.transformacoes[i][0] == "escalonamento":
+                if matriz_acomulada is None:
+                    x_centro_atual = x_centro
+                    y_centro_atual = y_centro
                 else:
-                    matriz_acomulada = matriz_transformada
-            elif (self.transformacoes[i][0] == "rotacao_centro_mundo"):
+                    ponto_centro = [[x_centro, y_centro, 1]]
+                    novo_centro = FormasGeometricas.multiplicacao_matrizes(ponto_centro,matriz_acomulada)
+                    x_centro_atual = novo_centro[0][0]
+                    y_centro_atual = novo_centro[0][1]
+                matriz_transformada = self.elemento.fazer_matriz_escalonamento(self.transformacoes[i][1],self.transformacoes[i][2],x_centro_atual,y_centro_atual)
+            elif self.transformacoes[i][0] == "rotacao_ponto_arbitrario":
+                matriz_transformada = self.elemento.fazer_matriz_rotacao_ponto_arbritario(self.transformacoes[i][1],self.transformacoes[i][2],self.transformacoes[i][3])
+            elif self.transformacoes[i][0] == "rotacao_centro_mundo":
                 matriz_transformada = self.elemento.fazer_matriz_rotacao_centro_mundo(self.transformacoes[i][1])
-                if (matriz_acomulada != None):
-                    matriz_resultado = FormasGeometricas.multiplicacao_matrizes(matriz_acomulada, matriz_transformada)
-                    matriz_acomulada = matriz_resultado
-                else:
-                    matriz_acomulada = matriz_transformada
             else:
                 print("ERRO!")
-        if (matriz_acomulada != None):
+
+            if matriz_acomulada is None:
+                matriz_acomulada = matriz_transformada
+            else:
+                matriz_acomulada = FormasGeometricas.multiplicacao_matrizes(matriz_acomulada,matriz_transformada)
+
+        if matriz_acomulada is not None:
             self.elemento.aplicar_matriz_transformacao(matriz_acomulada)
 
         self.callback_atualizar()
