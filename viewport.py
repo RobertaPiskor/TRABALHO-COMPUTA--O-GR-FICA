@@ -13,7 +13,6 @@ class ViewPoint:
         self.yvpmin = 0
         self.yvpmax = altura
 
-
         self.topleftX = -largura / 2
         self.topleftY = -altura / 2
         self.bottomrightX = largura / 2
