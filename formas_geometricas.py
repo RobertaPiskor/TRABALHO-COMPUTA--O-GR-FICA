@@ -44,25 +44,41 @@ class FormasGeometricas:
     # TRANSFORMAÇÕES DOS POLÍGONOS (TRANSLAÇÃO, ROTAÇÃO E ESCALONAMENTO)
     # =======================================================================
 
+    # ============================================================================
+    # Encontra centro do polígono (centro massa e gravidade nesse caso são iguais)
+
     def centro_poligono(self):
-        soma_x = sum(ponto[0] for ponto in self.pontos)
-        soma_y = sum(ponto[1] for ponto in self.pontos)
+        soma_x = 0
+        soma_y = 0
+        for ponto in self.pontos:
+            soma_x += ponto[0]
+            soma_y += ponto[1]
         qtd = len(self.pontos)
 
-        return (soma_x / qtd, soma_y / qtd)
+        return (soma_x/qtd, soma_y/qtd)
+
+    # ==============================
+    # Multiplicar matrizes genérica
 
     def multiplicacao_matrizes(M1, M2):
         qtd_linha_M1 = len(M1)
         qtd_coluna_M1 = len(M1[0])
         qtd_coluna_M2 = len(M2[0])
-        resultado = [[0] * qtd_coluna_M2 for _ in range(qtd_linha_M1)]
-
+        resultado = []
+        for i in range(qtd_linha_M1):
+            linha = []
+            for j in range(qtd_coluna_M2):
+                linha.append(0)
+            resultado.append(linha)
         for i in range(qtd_linha_M1):
             for j in range(qtd_coluna_M2):
                 for k in range(qtd_coluna_M1):
                     resultado[i][j] += (M1[i][k] * M2[k][j])
 
         return resultado
+
+    # ==========================================================
+    # Fazer as matrizes que irão utilizar para as transformadas
     
     def fazer_matriz_translacao(self, dx, dy):
         return [[1, 0, 0],[0, 1, 0],[dx, dy, 1]]
@@ -107,6 +123,9 @@ class FormasGeometricas:
         matriz_intermediaria = FormasGeometricas.multiplicacao_matrizes(matriz_ida,matriz_escalonamento)
 
         return FormasGeometricas.multiplicacao_matrizes(matriz_intermediaria,matriz_volta)
+
+    # ===============================================================================
+    # Fazer realmente as mudanças dos pontos (pega a matriz depois das transformadas)
 
     def aplicar_matriz_transformacao(self,matriz_composta):
         novos_pontos = []

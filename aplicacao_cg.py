@@ -20,8 +20,12 @@ class AplicacaoCG:
     def criar_interface(self):
         self.canvas = tk.Canvas(self.root, width=600, height=600, background="white") 
         self.canvas.grid(row=0, column=1)
+    
+    # =================================
+    # INTERFACE EM SI (BOTÕES E LISTA)
+    # =================================
 
-    # ==============================
+    # =====================================
     # Botões zooms, up, down, left e right
 
         self.frame_botoes = tk.Frame(self.root, padx=10, pady=10)
@@ -36,7 +40,7 @@ class AplicacaoCG:
 
         tk.Label(self.frame_botoes, text="").pack(pady=5)
 
-    # ==============================
+    # ==============================================================================================
     # Adicionar novas figuras (nome da figura - LINHA1) (pontos que nescessitam) (botão para enviar)
 
         tk.Label(self.frame_botoes, text="Nome da forma:", font=("Times New Roman", 10, "bold")).pack(anchor="w", pady=(10, 0))
@@ -70,7 +74,7 @@ class AplicacaoCG:
 
         self.lista_elementos.bind("<<ListboxSelect>>", self.ao_selecionar_elemento) # as formas que estarão dentro 
 
-    # ==============================
+    # ==================================
     # Para não começar sem nada na tela
 
     def carregar_dados_iniciais(self):
@@ -94,7 +98,7 @@ class AplicacaoCG:
         for elemento in self.elementosGeometricos:
             elemento.adiconar_na_tela(self.canvas, self.viewport)
 
-    # ==============================
+    # ==================================================================================================================
     # Quando se aperta um botão vem para cá e depois vai ser feito o que se deve (no sentido de dar zoom e essas coisas)
 
     def zoomIn(self):
@@ -121,7 +125,7 @@ class AplicacaoCG:
         self.viewport.up()
         self.redraw()
 
-    # ==============================
+    # ==============================================
     # Vai abrir outra tela para mexer nos elementos
 
     def ao_selecionar_elemento(self, event):
@@ -132,8 +136,8 @@ class AplicacaoCG:
             elemento_selecionado = self.elementosGeometricos[indice]
             JanelaTransformacoes(self.root, elemento_selecionado, self.redraw)
 
-    # ==============================
-    # Entra os pontos e criamos o objeto novo, linha, ponto ou polígonos(inserido)
+    # =============================================================================
+    # Entra os pontos e criamos o objeto novo, linha, ponto ou polígonos (inserido)
 
     def processar_entrada(self, nome:str, pontos_string:str, cor:str):
         try:
@@ -155,9 +159,9 @@ class AplicacaoCG:
                 self.lista_elementos.insert(tk.END, forma.nome)
                 self.redraw()
         except Exception as erro:
-            print("ERRO: ", erro)
+            print("ERRO!")
             
-    # ==============================
+    # ===============================================
     # Entrada para inserir a nova forma está correta?
 
     def forma_vinda_da_interface(self):

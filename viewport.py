@@ -1,10 +1,9 @@
-
 # ==============================
 # CLASSE VIEWPOINT
 # ==============================
 
 class ViewPoint:
-    # ==============================
+    # ====================
     # Variáveis de Estado    
 
     def __init__(self, largura=600, altura=600):
@@ -18,7 +17,7 @@ class ViewPoint:
         self.bottomrightX = largura / 2
         self.bottomrightY = altura / 2
 
-    # ==============================
+    # ==========================================
     # Fórmula para calcular onde cada ponto vai 
 
     def transformadaDeViewPoint(self, xw: float, yw: float):
@@ -26,7 +25,7 @@ class ViewPoint:
         yvp = (1 - ((yw - self.topleftY)/ (self.bottomrightY - self.topleftY))) * (self.yvpmax - self.yvpmin)
         return int(xvp), int(yvp)
 
-    # ==============================
+    # ====================================================================
     # Métodos que executam o que deve fazer quando se é apertado um botão 
 
     def zoomIn(self):
@@ -38,18 +37,18 @@ class ViewPoint:
         self.topleftY, self.bottomrightY = self.topleftY - (self.bottomrightY - self.topleftY) * 0.1, self.bottomrightY + (self.bottomrightY - self.topleftY) * 0.1
 
     def right(self):
-        self.topleftX -= 10
-        self.bottomrightX -= 10
-
-    def left(self):
         self.topleftX += 10
         self.bottomrightX += 10
 
-    def down(self):
-        self.topleftY += 10
-        self.bottomrightY += 10
+    def left(self):
+        self.topleftX -= 10
+        self.bottomrightX -= 10
 
-    def up(self):
+    def down(self):
         self.topleftY -= 10
         self.bottomrightY -= 10
+
+    def up(self):
+        self.topleftY += 10
+        self.bottomrightY += 10
 
