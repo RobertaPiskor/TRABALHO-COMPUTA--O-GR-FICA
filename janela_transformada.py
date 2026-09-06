@@ -8,9 +8,9 @@ from formas_geometricas import FormasGeometricas
 
 class JanelaTransformacoes:
 
-    def __init__(self, janela_pai, elemento, atualizar_canvas):
+    def __init__(self, janela_pai, elemento, aplicacao_principal):
         self.elemento = elemento
-        self.atualizar_canvas = (atualizar_canvas)
+        self.aplicacao_principal = (aplicacao_principal)
         self.transformacoes = []
         self.janela = tk.Toplevel(janela_pai)
         self.janela.title(f"TRANSFORMAR: {self.elemento.nome}")
@@ -190,5 +190,6 @@ class JanelaTransformacoes:
         if matriz_acomulada is not None:
             self.elemento.aplicar_matriz_transformacao(matriz_acomulada)
 
-        self.atualizar_canvas()
+        self.aplicacao_principal.redraw()
+        self.aplicacao_principal.salvar_formas_em_obj()
         self.janela.destroy()

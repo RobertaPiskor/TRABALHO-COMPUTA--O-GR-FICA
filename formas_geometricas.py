@@ -3,18 +3,17 @@ import random
 import tkinter as tk
 from viewport import ViewPoint
 
-cores = ["red", "blue", "green", "yellow", "orange", "purple", "pink", "brown", "black", "white", "gray", "cyan", "magenta", "lime", "navy", "teal", "olive", "maroon", "aqua", "gold", "silver", "coral", "tomato", "salmon", "violet", "indigo", "turquoise", "beige", "crimson", "khaki"]
+cores = ["#ff0000", "#0000ff", "#008000", "#ffff00", "#ffa500", "#800080", "#ffc0cb", "#a52a2a", "#000000", "#ffffff", "#808080", "#00ffff", "#ff00ff", "#00ff00", "#000080", "#008080", "#808000", "#800000", "#00ffff", "#ffd700", "#c0c0c0", "#ff7f50", "#ff6347", "#fa8072", "#ee82ee", "#4b0082", "#40e0d0", "#f5f5dc", "#dc143c", "#f0e68c"]
 
 # ==============================
 # CLASSE FORMAS GEOMÉTRICAS
 # ==============================
 
 class FormasGeometricas:
-    def __init__(self, nome: str, tipo: str, pontos: list, qtd_lados: int, cor: str):
+    def __init__(self, nome: str, tipo: str, pontos: list, cor: str):
         self.nome = nome   
         self.tipo = tipo   
         self.pontos = pontos
-        self.qtd_lados = qtd_lados
         self.cor = cor
 
     # ==============================
@@ -150,35 +149,35 @@ class FormasGeometricas:
         if cor is None:
             cor = random.choice(cores)
         pontos = [(cx, cy)]
-        return cls(nome, "ponto", pontos, 0, cor)
+        return cls(nome, "ponto", pontos, cor)
 
     @classmethod
     def drawCircle(cls, nome: str, cx: float, cy: float, raio: float, cor: str = None):
         if cor is None:
             cor = random.choice(cores)
         pontos = []
-        for i in range(720):
+        for i in range(360):
             x = cx + raio * math.cos(2 * math.pi * i / 360)
             y = cy + raio * math.sin(2 * math.pi * i / 360)
             pontos.append((x, y))
-        return cls(nome, "circulo", pontos, 1, cor)
+        return cls(nome, "circulo", pontos, cor)
 
     @classmethod
     def drawLine(cls, nome: str, x1: float, y1: float, x2: float, y2: float, cor: str = None):
         if cor is None:
             cor = random.choice(cores)
         pontos = [(x1, y1), (x2, y2)]
-        return cls(nome, "linha", pontos, 0, cor)
+        return cls(nome, "linha", pontos, cor)
 
     @classmethod
     def drawSquere(cls, nome: str, xi: float, yi: float, tamanho: float, cor: str = None):
         if cor is None:
             cor = random.choice(cores)
         pontos = [(xi, yi), (xi + tamanho, yi), (xi + tamanho, yi + tamanho), (xi, yi + tamanho)]    
-        return cls(nome, "quadrado", pontos, 4, cor)
+        return cls(nome, "quadrado", pontos, cor)
 
     @classmethod
     def drawWireframe(cls, nome: str, pontos: list, cor: str = None):
         if cor is None:
             cor = random.choice(cores)
-        return cls(nome, "wireframe", pontos, len(pontos), cor)
+        return cls(nome, "wireframe", pontos, cor)

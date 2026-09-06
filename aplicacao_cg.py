@@ -2,6 +2,7 @@ import tkinter as tk
 from viewport import ViewPoint
 from formas_geometricas import FormasGeometricas
 from janela_transformada import JanelaTransformacoes
+from descritor_obj import DescritorOBJ
 
 # ==============================
 # CLASSE PRINCIPAL DA APLICAÇÃO
@@ -78,25 +79,39 @@ class AplicacaoCG:
     # Para não começar sem nada na tela
 
     def carregar_dados_iniciais(self):
-        self.elementosGeometricos.append(FormasGeometricas.drawCircle("CIRCULO1", 0, 0, 80, "red"))
-        self.elementosGeometricos.append(FormasGeometricas.drawLine("LINHA1", -250, -200, -50, 100, "blue"))
-        self.elementosGeometricos.append(FormasGeometricas.drawSquere("QUADRADO1", -100, -100, 100, "green"))
-        self.elementosGeometricos.append(FormasGeometricas.drawPoint("PONTO1", 100, 100, "pink"))
-        self.elementosGeometricos.append(FormasGeometricas.drawLine("LINHA2", -200, 100, -270, 120, "yellow"))
-        self.elementosGeometricos.append(FormasGeometricas.drawWireframe("ESTRELA1",[(0, 200),(23, 130),(95, 130),(37, 85),(60, 15),(0, 55),(-60, 15),(-37, 85),(-95, 130),(-23, 130)]))
-
-        for elem in self.elementosGeometricos:
-            self.lista_elementos.insert(tk.END, elem.nome)
-
-        self.redraw()
-
-    # ==============================
+        try:
+            # Em vez de abrir o arquivo antes e passar para o descritor, 
+            # passamos o caminho direto para o ler_arquivo que criamos agora pouco:
+            descritor = DescritorOBJ()
+            dados_lidos = descritor.ler_arquivo("formas_aplicacao_cg.obj")
+            
+            # Como a nova leitura retorna um dicionário com os dados, 
+            # precisamos transformar em objetos FormasGeometricas reais:
+            self.elementosGeometricos = []
+            for item in dados_lidos:
+                forma = FormasGeometricas(item["nome"], "wireframe", item["pontos"], item["cor"])
+                self.elementosGeometricos.append(forma)
+                self.lista_elementos.insert(tk.END, forma.nome)
+                
+            if self.elementosGeometricos:
+                self.redraw()
+                
+        except FileNotFoundError:
+            print("Arquivo .obj não encontrado. Criando dados iniciais...")
+    # =================================================================
     # Coloca as figuras na tela (deleta tudo e coloca da forma correta)
 
     def redraw(self):
         self.canvas.delete("all") 
         for elemento in self.elementosGeometricos:
             elemento.adiconar_na_tela(self.canvas, self.viewport)
+
+    def salvar_formas_em_obj(self):
+        with open("formas_aplicacao_cg.obj", "w", encoding="utf-8") as arquivo:
+            arquivo.write("# ARQUIVO FORMAS\n")
+            descritor = DescritorOBJ(arquivo)
+            for elemento in self.elementosGeometricos:
+                descritor.escrever_arquivo(elemento)
 
     # ==================================================================================================================
     # Quando se aperta um botão vem para cá e depois vai ser feito o que se deve (no sentido de dar zoom e essas coisas)
@@ -134,7 +149,8 @@ class AplicacaoCG:
             indice = selecao[0]
             self.lista_elementos.selection_clear(0, tk.END)
             elemento_selecionado = self.elementosGeometricos[indice]
-            JanelaTransformacoes(self.root, elemento_selecionado, self.redraw)
+            JanelaTransformacoes(self.root, elemento_selecionado, self)
+            self.salvar_formas_em_obj()
 
     # =============================================================================
     # Entra os pontos e criamos o objeto novo, linha, ponto ou polígonos (inserido)
@@ -145,19 +161,31 @@ class AplicacaoCG:
             qtd_pontos = len(pontos)
             forma = None
 
+    # =================================================================================================
+    # Muda a cor (se for hexadecimal e nome da cor mesmo) para hexadecimal (* para colocar no arquivo)
+            
+            cor_rgb = self.canvas.winfo_rgb(cor)
+            red_cor = cor_rgb[0] // 256
+            green_cor = cor_rgb[1] // 256
+            blue_cor = cor_rgb[2] // 256
+            cor_hexadecimal = f"#{red_cor:02x}{green_cor:02x}{blue_cor:02x}"
+
             if qtd_pontos == 1: # ponto
                 x, y = pontos[0]
-                forma = (FormasGeometricas.drawPoint(nome, float(x), float(y), cor=cor))
+                forma = (FormasGeometricas.drawPoint(nome, float(x), float(y), cor=cor_hexadecimal))
             elif qtd_pontos == 2: # reta
                 (x1, y1), (x2, y2) = pontos
-                forma = (FormasGeometricas.drawLine(nome, float(x1), float(y1), float(x2), float(y2), cor=cor))
+                forma = (FormasGeometricas.drawLine(nome, float(x1), float(y1), float(x2), float(y2), cor=cor_hexadecimal))
             elif qtd_pontos > 2: # polígono
                 pontos_convertidos = [(float(x),float(y))for x, y in pontos]
-                forma = (FormasGeometricas.drawWireframe(nome, pontos_convertidos, cor=cor))
-            if forma:
+                forma = (FormasGeometricas.drawWireframe(nome, pontos_convertidos, cor=cor_hexadecimal))
+
+            if forma != None:
                 self.elementosGeometricos.append(forma)
                 self.lista_elementos.insert(tk.END, forma.nome)
+                self.salvar_formas_em_obj()
                 self.redraw()
+
         except Exception as erro:
             print("ERRO!")
             
