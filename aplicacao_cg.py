@@ -26,11 +26,19 @@ class AplicacaoCG:
     # INTERFACE EM SI (BOTÕES E LISTA)
     # =================================
 
-    # =====================================
-    # Botões zooms, up, down, left e right
+    # =========================================================
+    # Botões zooms, up, down, left e right e rotacionar windows
 
         self.frame_botoes = tk.Frame(self.root, padx=10, pady=10)
         self.frame_botoes.grid(row=0, column=0, sticky="n")
+
+        tk.Label(self.frame_botoes, text="Rotação Window (°):", font=("Times New Roman", 10, "bold")).pack(anchor="w", pady=(10, 0))
+        frame_rotacao_window = tk.Frame(self.frame_botoes)
+        frame_rotacao_window.pack(fill="x", pady=2)
+        self.entrada_angulo_window = tk.Entry(frame_rotacao_window, width=8)
+        self.entrada_angulo_window.pack(side="left", padx=(0, 5))
+        tk.Button(frame_rotacao_window, text="Rotacionar", font=("Times New Roman", 9, "bold"), command=self.rotacionar_window).pack(side="left", fill="x", expand=True)
+
 
         tk.Button(self.frame_botoes, text="Zoom in", font=("Times New Roman", 10, "bold"), command=self.zoomIn).pack(fill="x", pady=2)
         tk.Button(self.frame_botoes, text="Zoom out", font=("Times New Roman", 10, "bold"), command=self.zoomOut).pack(fill="x", pady=2)
@@ -79,25 +87,16 @@ class AplicacaoCG:
     # Para não começar sem nada na tela
 
     def carregar_dados_iniciais(self):
-        try:
-            # Em vez de abrir o arquivo antes e passar para o descritor, 
-            # passamos o caminho direto para o ler_arquivo que criamos agora pouco:
-            descritor = DescritorOBJ()
-            dados_lidos = descritor.ler_arquivo("formas_aplicacao_cg.obj")
-            
-            # Como a nova leitura retorna um dicionário com os dados, 
-            # precisamos transformar em objetos FormasGeometricas reais:
-            self.elementosGeometricos = []
-            for item in dados_lidos:
-                forma = FormasGeometricas(item["nome"], "wireframe", item["pontos"], item["cor"])
-                self.elementosGeometricos.append(forma)
-                self.lista_elementos.insert(tk.END, forma.nome)
-                
+        descritor = DescritorOBJ()
+        dados_lidos = descritor.ler_arquivo("formas_aplicacao_cg.obj")            
+        self.elementosGeometricos = []
+        for item in dados_lidos:
+            forma = FormasGeometricas(item[0], item[1], item[2], item[3])
+            self.elementosGeometricos.append(forma)
+            self.lista_elementos.insert(tk.END, forma.nome)
             if self.elementosGeometricos:
                 self.redraw()
                 
-        except FileNotFoundError:
-            print("Arquivo .obj não encontrado. Criando dados iniciais...")
     # =================================================================
     # Coloca as figuras na tela (deleta tudo e coloca da forma correta)
 
@@ -115,6 +114,12 @@ class AplicacaoCG:
 
     # ==================================================================================================================
     # Quando se aperta um botão vem para cá e depois vai ser feito o que se deve (no sentido de dar zoom e essas coisas)
+
+    def rotacionar_window(self):
+        angulo = float(self.entrada_angulo_window.get().strip())
+        self.viewport.rotacao_window(angulo) 
+        self.redraw()   
+        self.entrada_angulo_window.delete(0, tk.END)      
 
     def zoomIn(self):
         self.viewport.zoomIn()
@@ -155,40 +160,36 @@ class AplicacaoCG:
     # =============================================================================
     # Entra os pontos e criamos o objeto novo, linha, ponto ou polígonos (inserido)
 
-    def processar_entrada(self, nome:str, pontos_string:str, cor:str):
-        try:
-            pontos = list(eval(f"[{pontos_string}]"))
-            qtd_pontos = len(pontos)
-            forma = None
-
-    # =================================================================================================
-    # Muda a cor (se for hexadecimal e nome da cor mesmo) para hexadecimal (* para colocar no arquivo)
-            
+    def processar_entrada(self, nome: str, pontos_string: str, cor: str = None):
+        pontos = list(eval(f"[{pontos_string}]"))
+        qtd_pontos = len(pontos)
+        forma = None
+        cor_hexadecimal = None
+        if cor and cor.strip() != "":
             cor_rgb = self.canvas.winfo_rgb(cor)
             red_cor = cor_rgb[0] // 256
             green_cor = cor_rgb[1] // 256
             blue_cor = cor_rgb[2] // 256
             cor_hexadecimal = f"#{red_cor:02x}{green_cor:02x}{blue_cor:02x}"
-
-            if qtd_pontos == 1: # ponto
-                x, y = pontos[0]
-                forma = (FormasGeometricas.drawPoint(nome, float(x), float(y), cor=cor_hexadecimal))
-            elif qtd_pontos == 2: # reta
-                (x1, y1), (x2, y2) = pontos
-                forma = (FormasGeometricas.drawLine(nome, float(x1), float(y1), float(x2), float(y2), cor=cor_hexadecimal))
-            elif qtd_pontos > 2: # polígono
-                pontos_convertidos = [(float(x),float(y))for x, y in pontos]
-                forma = (FormasGeometricas.drawWireframe(nome, pontos_convertidos, cor=cor_hexadecimal))
-
-            if forma != None:
-                self.elementosGeometricos.append(forma)
-                self.lista_elementos.insert(tk.END, forma.nome)
-                self.salvar_formas_em_obj()
-                self.redraw()
-
-        except Exception as erro:
+        if qtd_pontos == 1:
+            tipo = "ponto"
+            pontos_formatados = [(float(pontos[0][0]), float(pontos[0][1]))]
+        elif qtd_pontos == 2:
+            tipo = "linha"
+            (x1, y1), (x2, y2) = pontos
+            pontos_formatados = [(float(x1), float(y1)), (float(x2), float(y2))]
+        elif qtd_pontos > 2:
+            tipo = "wireframe" 
+            pontos_formatados = [(float(x), float(y)) for x, y in pontos]
+        else:
             print("ERRO!")
-            
+        forma = FormasGeometricas(nome, tipo, pontos_formatados, cor_hexadecimal)
+        if forma is not None:
+            self.elementosGeometricos.append(forma)
+            self.lista_elementos.insert(tk.END, forma.nome)
+            self.salvar_formas_em_obj()
+            self.redraw()
+
     # ===============================================
     # Entrada para inserir a nova forma está correta?
 

@@ -1,0 +1,24 @@
+newmtl cor_a52a2a
+Kd 0.647 0.165 0.165
+
+newmtl cor_000000
+Kd 0.000 0.000 0.000
+
+newmtl cor_bb00ff
+Kd 0.733 0.000 1.000
+
+newmtl cor_ff0000
+Kd 1.000 0.000 0.000
+
+newmtl cor_ffc0cb
+Kd 1.000 0.753 0.796
+
+newmtl cor_008000
+Kd 0.000 0.502 0.000
+
+newmtl cor_c0c0c0
+Kd 0.753 0.753 0.753
+
+newmtl cor_808080
+Kd 0.502 0.502 0.502
+

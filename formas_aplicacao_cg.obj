@@ -1,6 +1,8 @@
 # ARQUIVO FORMAS
+mtllib cores.mtl
 o CIRCULO1
-# cor red
+usemtl cor_ff0000
+# tipo circulo
 v 154.0 -45.0 0.0
 v 153.99 -43.599999999999994 0.0
 v 153.95 -42.21000000000001 0.0
@@ -721,14 +723,18 @@ l 357 358
 l 358 359
 l 359 360
 l 360 1
+mtllib cores.mtl
 o LINHA1
-# cor blue
-v -300.0 -275.0 0.0
-v 0.0 175.0 0.0
+usemtl cor_bb00ff
+# tipo linha
+v -260.13957141513 -279.50796695891785 0.0
+v -59.860428584870064 199.50796695891788 0.0
 l 361 362
 l 362 361
+mtllib cores.mtl
 o QUADRADO1
-# cor green
+usemtl cor_008000
+# tipo quadrado
 v -100.0 -100.0 0.0
 v 0.0 -100.0 0.0
 v 0.0 0.0 0.0
@@ -737,11 +743,10 @@ l 363 364
 l 364 365
 l 365 366
 l 366 363
-o PONTO1
-# cor pink
-v 100.0 100.0 0.0
+mtllib cores.mtl
 o ESTRELA1
-# cor #800080
+usemtl cor_ffc0cb
+# tipo wireframe
 v 0.0 200.0 0.0
 v 23.0 130.0 0.0
 v 95.0 130.0 0.0
@@ -752,6 +757,7 @@ v -60.0 15.0 0.0
 v -37.0 85.0 0.0
 v -95.0 130.0 0.0
 v -23.0 130.0 0.0
+l 367 368
 l 368 369
 l 369 370
 l 370 371
@@ -760,5 +766,44 @@ l 372 373
 l 373 374
 l 374 375
 l 375 376
-l 376 377
-l 377 368
+l 376 367
+mtllib cores.mtl
+o PONTO3
+usemtl cor_a52a2a
+# tipo ponto
+v 12.0 90.0 0.0
+p 377
+mtllib cores.mtl
+o TRIANGULO1
+usemtl cor_808080
+# tipo wireframe
+v 23.542574445276962 123.41289838656365 0.0
+v -76.80482861962209 80.94580376839852 0.0
+v 89.26246913659179 173.1544246612769 0.0
+l 378 379
+l 379 380
+l 380 378
+mtllib cores.mtl
+o TRINAGULO2
+usemtl cor_c0c0c0
+# tipo wireframe
+v 130.80127018922192 153.34936490538902 0.0
+v 103.34936490538902 255.80127018922192 0.0
+v 65.84936490538902 190.84936490538902 0.0
+l 381 382
+l 382 383
+l 383 381
+mtllib cores.mtl
+o LINHA2
+usemtl cor_000000
+# tipo linha
+v 16.0 37.0 0.0
+v 64.0 73.0 0.0
+l 384 385
+l 385 384
+mtllib cores.mtl
+o PONTO1
+usemtl cor_000000
+# tipo ponto
+v 10.0 10.0 0.0
+p 386

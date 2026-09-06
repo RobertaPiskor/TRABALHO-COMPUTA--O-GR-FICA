@@ -3,7 +3,7 @@ import random
 import tkinter as tk
 from viewport import ViewPoint
 
-cores = ["#ff0000", "#0000ff", "#008000", "#ffff00", "#ffa500", "#800080", "#ffc0cb", "#a52a2a", "#000000", "#ffffff", "#808080", "#00ffff", "#ff00ff", "#00ff00", "#000080", "#008080", "#808000", "#800000", "#00ffff", "#ffd700", "#c0c0c0", "#ff7f50", "#ff6347", "#fa8072", "#ee82ee", "#4b0082", "#40e0d0", "#f5f5dc", "#dc143c", "#f0e68c"]
+cores = ["#ff0000", "#bb00ff", "#008000", "#ffff00", "#ffa500", "#800080", "#ffc0cb", "#a52a2a", "#000000", "#ffffff", "#808080", "#00ffff", "#ff00ff", "#00ff00", "#000080", "#008080", "#808000", "#800000", "#00ffff", "#ffd700", "#c0c0c0", "#ff7f50", "#ff6347", "#fa8072", "#ee82ee", "#4b0082", "#40e0d0", "#f5f5dc", "#dc143c", "#f0e68c"]
 
 # ==============================
 # CLASSE FORMAS GEOMÉTRICAS
@@ -20,120 +20,23 @@ class FormasGeometricas:
     # É desenhado na tela as figuras
 
     def adiconar_na_tela(self, canvas: tk.Canvas, vp: ViewPoint):
+        pontos_tela = vp.normalizacao(self.pontos)
         if self.tipo == "ponto":
-            x, y = self.pontos[0]
-            xvp, yvp = vp.transformadaDeViewPoint(x, y)
+            xvp, yvp = pontos_tela[0]
             canvas.create_line(xvp, yvp, xvp+1, yvp, fill=self.cor)
         elif self.tipo == "linha":
-            x1, y1 = self.pontos[0]
-            x2, y2 = self.pontos[1]
-            x1vp, y1vp = vp.transformadaDeViewPoint(x1, y1)
-            x2vp, y2vp = vp.transformadaDeViewPoint(x2, y2)
+            x1vp, y1vp = pontos_tela[0]
+            x2vp, y2vp = pontos_tela[1]
             canvas.create_line(x1vp, y1vp, x2vp, y2vp, fill=self.cor)
         else:
-            for j in range(len(self.pontos) - 1):
-                xvp1, yvp1 = vp.transformadaDeViewPoint(self.pontos[j][0], self.pontos[j][1])
-                xvp2, yvp2 = vp.transformadaDeViewPoint(self.pontos[j+1][0], self.pontos[j+1][1])
-                canvas.create_line(xvp1, yvp1, xvp2, yvp2, fill=self.cor)           
-            xvp1, yvp1 = vp.transformadaDeViewPoint(self.pontos[-1][0], self.pontos[-1][1])
-            xvp2, yvp2 = vp.transformadaDeViewPoint(self.pontos[0][0], self.pontos[0][1])
+            for j in range(len(pontos_tela) - 1):
+                xvp1, yvp1 = pontos_tela[j]
+                xvp2, yvp2 = pontos_tela[j+1]
+                canvas.create_line(xvp1, yvp1, xvp2, yvp2, fill=self.cor)    
+            xvp1, yvp1 = pontos_tela[-1]
+            xvp2, yvp2 = pontos_tela[0]
             canvas.create_line(xvp1, yvp1, xvp2, yvp2, fill=self.cor)
-
-    # =======================================================================
-    # TRANSFORMAÇÕES DOS POLÍGONOS (TRANSLAÇÃO, ROTAÇÃO E ESCALONAMENTO)
-    # =======================================================================
-
-    # ============================================================================
-    # Encontra centro do polígono (centro massa e gravidade nesse caso são iguais)
-
-    def centro_poligono(self):
-        soma_x = 0
-        soma_y = 0
-        for ponto in self.pontos:
-            soma_x += ponto[0]
-            soma_y += ponto[1]
-        qtd = len(self.pontos)
-
-        return (soma_x/qtd, soma_y/qtd)
-
-    # ==============================
-    # Multiplicar matrizes genérica
-
-    def multiplicacao_matrizes(M1, M2):
-        qtd_linha_M1 = len(M1)
-        qtd_coluna_M1 = len(M1[0])
-        qtd_coluna_M2 = len(M2[0])
-        resultado = []
-        for i in range(qtd_linha_M1):
-            linha = []
-            for j in range(qtd_coluna_M2):
-                linha.append(0)
-            resultado.append(linha)
-        for i in range(qtd_linha_M1):
-            for j in range(qtd_coluna_M2):
-                for k in range(qtd_coluna_M1):
-                    resultado[i][j] += (M1[i][k] * M2[k][j])
-
-        return resultado
-
-    # ==========================================================
-    # Fazer as matrizes que irão utilizar para as transformadas
-    
-    def fazer_matriz_translacao(self, dx, dy):
-        return [[1, 0, 0],[0, 1, 0],[dx, dy, 1]]
-
-    def fazer_matriz_rotacao_centro_mundo(self, angulo_graus):
-        angulo = math.radians(angulo_graus)
-        cosseno_angulo = math.cos(angulo)
-        seno_angulo = math.sin(angulo)
-
-        return [[cosseno_angulo, seno_angulo, 0],[-seno_angulo, cosseno_angulo, 0],[0, 0, 1]]
-
-    def fazer_matriz_rotacao_centro_objeto(self,angulo_graus, x_centro, y_centro):
-        angulo = math.radians(angulo_graus)
-        cosseno_angulo = math.cos(angulo)
-        seno_angulo = math.sin(angulo)
-        matriz_rotacao = [[cosseno_angulo, seno_angulo, 0],[-seno_angulo, cosseno_angulo, 0],[0, 0, 1]]
-        matriz_ida = [[1, 0, 0],[0, 1, 0],[-x_centro, -y_centro, 1]]
-        matriz_volta = [[1, 0, 0],[0, 1, 0],[x_centro, y_centro, 1]]
-
-        matriz_intermediaria = (FormasGeometricas.multiplicacao_matrizes(matriz_ida,matriz_rotacao))
-        matriz_final = (FormasGeometricas.multiplicacao_matrizes(matriz_intermediaria,matriz_volta))
-
-        return matriz_final
-
-    def fazer_matriz_rotacao_ponto_arbritario(self, angulo_graus,x,y):
-        angulo = math.radians(angulo_graus)
-        cosseno_angulo = math.cos(angulo)
-        seno_angulo = math.sin(angulo)
-        matriz_rotacao = [[cosseno_angulo, seno_angulo, 0],[-seno_angulo, cosseno_angulo, 0],[0, 0, 1]]
-        matriz_ida = [[1, 0, 0],[0, 1, 0],[-x, -y, 1]]
-        matriz_volta = [[1, 0, 0],[0, 1, 0],[x, y, 1]]
-
-        matriz_intermediaria = (FormasGeometricas.multiplicacao_matrizes(matriz_ida,matriz_rotacao))
-        matriz_final = (FormasGeometricas.multiplicacao_matrizes(matriz_intermediaria,matriz_volta))
-
-        return matriz_final
-
-    def fazer_matriz_escalonamento(self, Sx, Sy, x_centro, y_centro):
-        matriz_ida = [[1, 0, 0],[0, 1, 0],[-x_centro, -y_centro, 1]]
-        matriz_escalonamento = [[Sx, 0, 0],[0, Sy, 0],[0, 0, 1]]
-        matriz_volta = [[1, 0, 0],[0, 1, 0],[x_centro, y_centro, 1]]
-        matriz_intermediaria = FormasGeometricas.multiplicacao_matrizes(matriz_ida,matriz_escalonamento)
-
-        return FormasGeometricas.multiplicacao_matrizes(matriz_intermediaria,matriz_volta)
-
-    # ===============================================================================
-    # Fazer realmente as mudanças dos pontos (pega a matriz depois das transformadas)
-
-    def aplicar_matriz_transformacao(self,matriz_composta):
-        novos_pontos = []
-        for x, y in self.pontos:
-            ponto_matriz = [[x, y, 1]]
-            resultado = (FormasGeometricas.multiplicacao_matrizes(ponto_matriz,matriz_composta))
-            novos_pontos.append((resultado[0][0],resultado[0][1]))
-        self.pontos = novos_pontos
-
+            
     # ==============================
     # CRIAÇÃO DAS FIGURAS
     # ==============================
