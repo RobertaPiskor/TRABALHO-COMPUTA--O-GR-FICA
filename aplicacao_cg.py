@@ -19,7 +19,7 @@ class AplicacaoCG:
         self.carregar_dados_iniciais()
 
     def criar_interface(self):
-        self.canvas = tk.Canvas(self.root, width=600, height=600, background="white") 
+        self.canvas = tk.Canvas(self.root, width=600, height=600, background="white", highlightthickness=0, bd=0)
         self.canvas.grid(row=0, column=1)
     
     # =================================
@@ -74,7 +74,7 @@ class AplicacaoCG:
 
         tk.Label(self.frame_lista, text="Objetos na Tela", font=("Times New Roman", 10, "bold")).pack(anchor="w")
 
-        self.lista_elementos = tk.Listbox(self.frame_lista, width=20, height=35)
+        self.lista_elementos = tk.Listbox(self.frame_lista, width=30, height=35)
         self.lista_elementos.pack(side="left", fill="both", expand=True)
 
         scrollbar = tk.Scrollbar(self.frame_lista, orient="vertical", command=self.lista_elementos.yview) # se passou a tela roda para baixo
@@ -107,11 +107,9 @@ class AplicacaoCG:
 
     def salvar_formas_em_obj(self):
         with open("formas_aplicacao_cg.obj", "w", encoding="utf-8") as arquivo:
-            arquivo.write("# ARQUIVO FORMAS\n")
             descritor = DescritorOBJ(arquivo)
             for elemento in self.elementosGeometricos:
                 descritor.escrever_arquivo(elemento)
-
     # ==================================================================================================================
     # Quando se aperta um botão vem para cá e depois vai ser feito o que se deve (no sentido de dar zoom e essas coisas)
 

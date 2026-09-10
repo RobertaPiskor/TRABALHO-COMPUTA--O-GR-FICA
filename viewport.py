@@ -63,7 +63,7 @@ class ViewPoint:
     # ==========================================
     # Fórmula para calcular onde cada ponto vai 
 
-    def mundo_para_SCN(self, pontos):
+    def TransformadaMundoSCN(self, pontos):
         Wcx = (self.topleftX + self.bottomrightX) / 2.0
         Wcy = (self.topleftY + self.bottomrightY) / 2.0
         matriz_translacao = self.transformador.fazer_matriz_translacao(-Wcx,-Wcy)
@@ -79,17 +79,19 @@ class ViewPoint:
 
         matriz_intermediaria = self.transformador.multiplicacao_matrizes(matriz_translacao,matriz_rotacao)
         matriz_final = self.transformador.multiplicacao_matrizes(matriz_intermediaria,matriz_escalonamento)
-        return self.transformador.aplicar_matriz_transformacao(pontos,matriz_final)
+        pontos_trasnformados_scn = self.transformador.aplicar_matriz_transformacao(pontos,matriz_final)
 
-    def SCN_para_viewport(self, pontos_scn):
-        pontos_tela = []
-        for x_scn, y_scn in pontos_scn:
-            xvp = (((x_scn + 1.0) / 2.0)*(self.xvpmax - self.xvpmin)+ self.xvpmin)
-            yvp = ((1.0 - ((y_scn + 1.0) / 2.0))* (self.yvpmax - self.yvpmin)+ self.yvpmin)
-            pontos_tela.append((int(xvp), int(yvp)))
-        return pontos_tela
+        return pontos_trasnformados_scn
 
-    def normalizacao(self, pontos_coordenadas_cartesianas):
-        pontos_scn = self.mundo_para_SCN(pontos_coordenadas_cartesianas)
-        pontos_tela = self.SCN_para_viewport(pontos_scn)
-        return pontos_tela
+    def TransformadaSCNViewport(self, pontos_trasnformados_scn):
+        posicao_pontos_canva = []
+        for x_scn, y_scn in pontos_trasnformados_scn:
+            xvp = (((x_scn + 1) / 2) * (self.xvpmax - self.xvpmin)+ self.xvpmin)
+            yvp = ((1 - ((y_scn + 1) / 2)) * (self.yvpmax - self.yvpmin)+ self.yvpmin)
+            posicao_pontos_canva.append((int(xvp), int(yvp)))
+        return posicao_pontos_canva
+
+    def RealizarNormalizacao(self, pontos_coordenadas_cartesianas):
+        pontos_trasnformados_scn = self.TransformadaMundoSCN(pontos_coordenadas_cartesianas)
+        posicao_pontos_canva = self.TransformadaSCNViewport(pontos_trasnformados_scn)
+        return posicao_pontos_canva

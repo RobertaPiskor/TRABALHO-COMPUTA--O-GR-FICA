@@ -20,7 +20,7 @@ class FormasGeometricas:
     # É desenhado na tela as figuras
 
     def adiconar_na_tela(self, canvas: tk.Canvas, vp: ViewPoint):
-        pontos_tela = vp.normalizacao(self.pontos)
+        pontos_tela = vp.RealizarNormalizacao(self.pontos)
         if self.tipo == "ponto":
             xvp, yvp = pontos_tela[0]
             canvas.create_line(xvp, yvp, xvp+1, yvp, fill=self.cor)
