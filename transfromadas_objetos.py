@@ -4,6 +4,7 @@ class TransformarObjetos:
 
     # ============================
     # Encontra centro do polígono
+
     def centro_poligono(self, pontos):
         soma_x = 0
         soma_y = 0
@@ -32,8 +33,8 @@ class TransformarObjetos:
                     resultado[i][j] += M1[i][k] * M2[k][j]
         return resultado
 
-    # ============================================================================
-    # MATRIZES DE TRANSFORMAÇÃO
+    # =====================================
+    # MATRIZES DE TRANSFORMAÇÃO (GENÉRICO)
 
     def fazer_matriz_translacao(self, dx, dy):
         return [[1, 0, 0],[0, 1, 0],[dx, dy, 1]]
@@ -83,8 +84,8 @@ class TransformarObjetos:
 
         return self.multiplicacao_matrizes(matriz_intermediaria, matriz_volta)
 
-    # ============================================================================
-    # APLICA A MATRIZ NOS PONTOS
+    # ==============================
+    # Aplicar as matrizes nos pontos
 
     def aplicar_matriz_transformacao(self, pontos, matriz_composta):
         novos_pontos = []

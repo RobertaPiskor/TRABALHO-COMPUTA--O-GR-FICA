@@ -14,8 +14,10 @@ class FormasGeometricas:
         self.nome = nome   
         self.tipo = tipo   
         self.pontos = pontos
-        self.cor = cor
-
+        if cor is None:
+            self.cor = random.choice(cores)
+        else:
+            self.cor = cor
     # ==============================
     # É desenhado na tela as figuras
 

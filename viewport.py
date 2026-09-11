@@ -20,15 +20,6 @@ class ViewPoint:
         self.bottomrightY = altura / 2
 
         self.angulo_vup = 0.0
-        self.transformador = TransformarObjetos()
-
-    # ==========================================
-    # Fórmula para calcular onde cada ponto vai 
-
-    def transformadaDeViewPoint(self, xw: float, yw: float):
-        xvp = ((xw - self.topleftX) / (self.bottomrightX - self.topleftX)) * (self.xvpmax - self.xvpmin)
-        yvp = (1 - ((yw - self.topleftY)/ (self.bottomrightY - self.topleftY))) * (self.yvpmax - self.yvpmin)
-        return int(xvp), int(yvp)
 
     # ====================================================================
     # Métodos que executam o que deve fazer quando se é apertado um botão 
@@ -60,38 +51,30 @@ class ViewPoint:
         self.topleftY += 10
         self.bottomrightY += 10
 
-    # ==========================================
-    # Fórmula para calcular onde cada ponto vai 
+    # ====================================================================================================
+    # Fórmula para calcular onde cada ponto vai (fazer a normailização). pega do mundo -> SCN -> vierpoint
 
-    def TransformadaMundoSCN(self, pontos):
+    def RealizarNormalizacao(self, pontos):
+        transformador = TransformarObjetos()
+
+        posicao_pontos_tela = []
         Wcx = (self.topleftX + self.bottomrightX) / 2.0
         Wcy = (self.topleftY + self.bottomrightY) / 2.0
-        matriz_translacao = self.transformador.fazer_matriz_translacao(-Wcx,-Wcy)
-        matriz_rotacao = self.transformador.fazer_matriz_rotacao_centro_mundo(-self.angulo_vup)
+        matriz_translacao = transformador.fazer_matriz_translacao(-Wcx,-Wcy)
+        matriz_rotacao = transformador.fazer_matriz_rotacao_centro_mundo(-self.angulo_vup)
 
-        largura_w = self.bottomrightX - self.topleftX
-        altura_w = self.bottomrightY - self.topleftY
+        sx = 2.0 / (self.bottomrightX - self.topleftX)
+        sy = 2.0 / (self.bottomrightY - self.topleftY)
 
-        sx = 2.0 / largura_w
-        sy = 2.0 / altura_w
+        matriz_escalonamento = transformador.fazer_matriz_escalonamento(sx, sy, 0, 0)
 
-        matriz_escalonamento = [[sx, 0, 0],[0, sy, 0],[0, 0, 1]]
+        matriz_intermediaria = transformador.multiplicacao_matrizes(matriz_translacao, matriz_rotacao)
+        matriz_final = transformador.multiplicacao_matrizes(matriz_intermediaria, matriz_escalonamento)
+        pontos_trasnformados_scn = transformador.aplicar_matriz_transformacao(pontos, matriz_final)
 
-        matriz_intermediaria = self.transformador.multiplicacao_matrizes(matriz_translacao,matriz_rotacao)
-        matriz_final = self.transformador.multiplicacao_matrizes(matriz_intermediaria,matriz_escalonamento)
-        pontos_trasnformados_scn = self.transformador.aplicar_matriz_transformacao(pontos,matriz_final)
-
-        return pontos_trasnformados_scn
-
-    def TransformadaSCNViewport(self, pontos_trasnformados_scn):
-        posicao_pontos_canva = []
         for x_scn, y_scn in pontos_trasnformados_scn:
             xvp = (((x_scn + 1) / 2) * (self.xvpmax - self.xvpmin)+ self.xvpmin)
             yvp = ((1 - ((y_scn + 1) / 2)) * (self.yvpmax - self.yvpmin)+ self.yvpmin)
-            posicao_pontos_canva.append((int(xvp), int(yvp)))
-        return posicao_pontos_canva
+            posicao_pontos_tela.append((int(xvp), int(yvp)))
 
-    def RealizarNormalizacao(self, pontos_coordenadas_cartesianas):
-        pontos_trasnformados_scn = self.TransformadaMundoSCN(pontos_coordenadas_cartesianas)
-        posicao_pontos_canva = self.TransformadaSCNViewport(pontos_trasnformados_scn)
-        return posicao_pontos_canva
+        return posicao_pontos_tela

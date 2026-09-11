@@ -15,7 +15,6 @@ class AplicacaoCG:
         self.viewport = ViewPoint(600, 600)
         self.elementosGeometricos = []
         self.criar_interface()
-        
         self.carregar_dados_iniciais()
 
     def criar_interface(self):
