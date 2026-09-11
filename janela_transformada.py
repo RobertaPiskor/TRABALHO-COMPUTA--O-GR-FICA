@@ -1,4 +1,5 @@
 import tkinter as tk
+import math
 from formas_geometricas import FormasGeometricas
 from transfromadas_objetos import TransformarObjetos
 
@@ -34,7 +35,7 @@ class JanelaTransformacoes:
     # ====================================
     # botões e cédula para inserir valores
 
-        tk.Label(frame_esquerda, text="Translação (xp, yp):", font=("Times New Roman", 10, "bold")).pack(pady=(0, 5))
+        tk.Label(frame_esquerda, text="Translação (xp, yp) - Considera rotação da window:", font=("Times New Roman", 10, "bold")).pack(pady=(0, 5))
         regiao_translacao = tk.Frame(frame_esquerda)
         regiao_translacao.pack(pady=(0, 15))
         self.recebido_translacao_dx = tk.Entry(regiao_translacao, width=5)
@@ -103,10 +104,17 @@ class JanelaTransformacoes:
     # ========================================
 
     def adicionar_translacao(self):
-        translacao_dx = float(self.recebido_translacao_dx.get())
-        translacao_dy = float(self.recebido_translacao_dy.get())
+        dx_tela = float(self.recebido_translacao_dx.get())
+        dy_tela = float(self.recebido_translacao_dy.get())
+
+        angulo_window = self.aplicacao_principal.viewport.angulo_vup
+        rad = math.radians(angulo_window)
+
+        translacao_dx = dx_tela * math.cos(rad) - dy_tela * math.sin(rad)
+        translacao_dy = dx_tela * math.sin(rad) + dy_tela * math.cos(rad)
+
         self.transformacoes.append(["translacao", translacao_dx, translacao_dy])
-        self.lista_transformacoes.insert(tk.END, "Translação: X={}, Y={}".format(translacao_dx, translacao_dy))
+        self.lista_transformacoes.insert(tk.END, "Translação: X={}, Y={}".format(dx_tela, dy_tela))
         self.recebido_translacao_dx.delete(0,tk.END)
         self.recebido_translacao_dy.delete(0,tk.END)
 

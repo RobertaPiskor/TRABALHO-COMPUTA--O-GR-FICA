@@ -1,4 +1,5 @@
 from transfromadas_objetos import TransformarObjetos
+import math
 
 # ==============================
 # CLASSE VIEWPOINT
@@ -36,20 +37,32 @@ class ViewPoint:
         self.topleftY, self.bottomrightY = self.topleftY - (self.bottomrightY - self.topleftY) * 0.1, self.bottomrightY + (self.bottomrightY - self.topleftY) * 0.1
 
     def right(self):
-        self.topleftX += 10
-        self.bottomrightX += 10
+        radiano = math.radians(self.angulo_vup)
+        self.topleftX += 10 * math.cos(radiano)
+        self.bottomrightX += 10 * math.cos(radiano)
+        self.topleftY += 10 * math.sin(radiano)
+        self.bottomrightY += 10 * math.sin(radiano)
 
     def left(self):
-        self.topleftX -= 10
-        self.bottomrightX -= 10
-
-    def down(self):
-        self.topleftY -= 10
-        self.bottomrightY -= 10
+        radiano = math.radians(self.angulo_vup)
+        self.topleftX -= 10 * math.cos(radiano)
+        self.bottomrightX -= 10 * math.cos(radiano)
+        self.topleftY -= 10 * math.sin(radiano)
+        self.bottomrightY -= 10 * math.sin(radiano)
 
     def up(self):
-        self.topleftY += 10
-        self.bottomrightY += 10
+        radiano = math.radians(self.angulo_vup)
+        self.topleftX -= 10 * math.sin(radiano)
+        self.bottomrightX -= 10 * math.sin(radiano)
+        self.topleftY += 10 * math.cos(radiano)
+        self.bottomrightY += 10 * math.cos(radiano)
+
+    def down(self):
+        radiano = math.radians(self.angulo_vup)
+        self.topleftX += 10 * math.sin(radiano)
+        self.bottomrightX += 10 * math.sin(radiano)
+        self.topleftY -= 10 * math.cos(radiano)
+        self.bottomrightY -= 10 * math.cos(radiano)
 
     # ====================================================================================================
     # Fórmula para calcular onde cada ponto vai (fazer a normailização). pega do mundo -> SCN -> vierpoint

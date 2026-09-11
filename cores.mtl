@@ -1,27 +1,30 @@
-newmtl cor_dc143c
-Kd 0.863 0.078 0.235
-
-newmtl cor_ff1e00
-Kd 1.000 0.118 0.000
-
-newmtl cor_7b309c
-Kd 0.482 0.188 0.612
-
-newmtl cor_bf8c2c
-Kd 0.749 0.549 0.173
-
 newmtl cor_219129
 Kd 0.129 0.569 0.161
+
+newmtl cor_ff6347
+Kd 1.000 0.388 0.278
 
 newmtl cor_ff7f50
 Kd 1.000 0.498 0.314
 
-newmtl cor_2f409e
-Kd 0.184 0.251 0.620
+newmtl cor_7b309c
+Kd 0.482 0.188 0.612
 
-newmtl cor_c0c0c0
-Kd 0.753 0.753 0.753
+newmtl cor_00ff00
+Kd 0.000 1.000 0.000
 
 newmtl cor_ff006f
 Kd 1.000 0.000 0.435
+
+newmtl cor_bf8c2c
+Kd 0.749 0.549 0.173
+
+newmtl cor_ffc0cb
+Kd 1.000 0.753 0.796
+
+newmtl cor_2f409e
+Kd 0.184 0.251 0.620
+
+newmtl cor_ff1e00
+Kd 1.000 0.118 0.000
 

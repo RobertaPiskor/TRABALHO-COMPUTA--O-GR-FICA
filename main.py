@@ -1,4 +1,5 @@
 import tkinter as tk
+import math
 from aplicacao_cg import AplicacaoCG
 from janela_transformada import JanelaTransformacoes
 
