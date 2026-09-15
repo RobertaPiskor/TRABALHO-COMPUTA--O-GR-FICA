@@ -22,7 +22,9 @@ class FormasGeometricas:
     # É desenhado na tela as figuras
 
     def adiconar_na_tela(self, canvas: tk.Canvas, vp: ViewPoint):
-        pontos_tela = vp.RealizarNormalizacao(self.pontos)
+        pontos_tela = vp.RealizarNormalizacao(self.pontos, self.tipo)
+        if not pontos_tela:
+            return
         if self.tipo == "ponto":
             xvp, yvp = pontos_tela[0]
             canvas.create_line(xvp, yvp, xvp+1, yvp, fill=self.cor)
@@ -31,14 +33,17 @@ class FormasGeometricas:
             x2vp, y2vp = pontos_tela[1]
             canvas.create_line(x1vp, y1vp, x2vp, y2vp, fill=self.cor)
         else:
-            for j in range(len(pontos_tela) - 1):
-                xvp1, yvp1 = pontos_tela[j]
-                xvp2, yvp2 = pontos_tela[j+1]
-                canvas.create_line(xvp1, yvp1, xvp2, yvp2, fill=self.cor)    
-            xvp1, yvp1 = pontos_tela[-1]
-            xvp2, yvp2 = pontos_tela[0]
-            canvas.create_line(xvp1, yvp1, xvp2, yvp2, fill=self.cor)
-            
+            if (self.tipo == "wireframe"):
+                for j in range(len(pontos_tela) - 1):
+                    xvp1, yvp1 = pontos_tela[j]
+                    xvp2, yvp2 = pontos_tela[j+1]
+                    canvas.create_line(xvp1, yvp1, xvp2, yvp2, fill=self.cor)    
+                xvp1, yvp1 = pontos_tela[-1]
+                xvp2, yvp2 = pontos_tela[0]
+                canvas.create_line(xvp1, yvp1, xvp2, yvp2, fill=self.cor)
+            else:
+                canvas.create_polygon(pontos_tela, fill=self.cor, outline=self.cor, width=1)
+
     # ==============================
     # CRIAÇÃO DAS FIGURAS
     # ==============================

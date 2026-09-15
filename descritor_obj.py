@@ -31,12 +31,16 @@ class DescritorOBJ:
             self.arquivo.write("l {} {}\n".format(self.contador_vertices, self.contador_vertices + 1))            
         elif qtd > 2:
             indices = [str(self.contador_vertices + i) for i in range(qtd)]
-            indices.append(str(self.contador_vertices)) 
-            self.arquivo.write("l {}\n".format(" ".join(indices)))
+            if forma.tipo == "wireframe":
+                indices.append(str(self.contador_vertices)) 
+                self.arquivo.write("l {}\n".format(" ".join(indices)))
+            else:
+                self.arquivo.write("f {}\n".format(" ".join(indices)))
 
         self.contador_vertices += qtd 
         
         self.gerar_arquivo_mtl()
+
 
     def gerar_arquivo_mtl(self, caminho_mtl="cores.mtl"):
         with open(caminho_mtl, "w", encoding="utf-8") as arquivo_mtl:
@@ -53,39 +57,42 @@ class DescritorOBJ:
 
     def ler_arquivo(self, caminho_arquivo):
         formas_lidas = []        
-        with open(caminho_arquivo, "r", encoding="utf-8") as arquivo:
-
-            nome_objeto = "forma"
-            cor_objeto = "#000000"
-            tipo_objeto = "wireframe"
-            pontos = []
-            
-            for linha in arquivo:
-                linha = linha.strip()                
-                if linha.startswith("o "):
-                    if pontos:
-                        formas_lidas.append([nome_objeto, tipo_objeto, pontos, cor_objeto])
-                        pontos = [] 
-                    nome_objeto = linha.split(" ", 1)[1]                    
-                elif linha.startswith("usemtl"):
-                    partes = linha.split()
-                    if len(partes) > 1:
-                        cor_objeto = "#" + partes[1].replace("cor_", "")                                          
-                elif linha.startswith("# tipo"):
-                    partes = linha.split()
-                    if len(partes) > 2:
-                        tipo_objeto = partes[2]
-                elif linha.startswith("v "):
-                    partes = linha.split()
-                    x = float(partes[1])
-                    y = float(partes[2])
-                    pontos.append((x, y))             
-                elif linha.startswith("l ") or linha.startswith("p ") or linha.startswith("mtllib") or linha == "" or linha.startswith("#"):
-                    pass
-                else:
-                    print("ERRO!", linha)
-                    
-            if pontos:
-                formas_lidas.append([nome_objeto, tipo_objeto, pontos, cor_objeto])    
+        try:
+            with open(caminho_arquivo, "r", encoding="utf-8") as arquivo:
+                nome_objeto = "forma"
+                cor_objeto = "#000000"
+                tipo_objeto = "wireframe"
+                pontos = []
                 
+                for linha in arquivo:
+                    linha = linha.strip()                
+                    if linha.startswith("o "):
+                        if pontos:
+                            formas_lidas.append([nome_objeto, tipo_objeto, pontos, cor_objeto])
+                            pontos = [] 
+                        nome_objeto = linha.split(" ", 1)[1]                    
+                    elif linha.startswith("usemtl"):
+                        partes = linha.split()
+                        if len(partes) > 1:
+                            cor_objeto = "#" + partes[1].replace("cor_", "")                                        
+                    elif linha.startswith("# tipo"):
+                        partes = linha.split()
+                        if len(partes) > 2:
+                            tipo_objeto = partes[2] 
+                    elif linha.startswith("v "):
+                        partes = linha.split()
+                        x = float(partes[1])
+                        y = float(partes[2])
+                        pontos.append((x, y))             
+                    elif linha.startswith("l ") or linha.startswith("p ") or linha.startswith("mtllib") or linha == "" or linha.startswith("#") or linha.startswith("f "):
+                        pass
+                    else:
+                        print("ERRO!", linha)
+                        
+                if pontos:
+                    formas_lidas.append([nome_objeto, tipo_objeto, pontos, cor_objeto])    
+                    
+        except FileNotFoundError:
+            pass 
+            
         return formas_lidas
