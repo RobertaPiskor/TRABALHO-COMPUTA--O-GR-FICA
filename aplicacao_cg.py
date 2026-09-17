@@ -63,8 +63,8 @@ class AplicacaoCG:
         self.entrada_cor.pack(fill="x", pady=2)
 
         self.var_preenchido = tk.BooleanVar(value=False) 
-        tk.Radiobutton(self.grupo_formas, text="Preenchido", variable=self.var_preenchido, value=True, font=("Times New Roman", 9)).pack(anchor="w")
-        tk.Radiobutton(self.grupo_formas, text="Não preenchido", variable=self.var_preenchido, value=False, font=("Times New Roman", 9)).pack(anchor="w")
+        tk.Radiobutton(self.grupo_formas, text="Polígono preenchido", variable=self.var_preenchido, value=True, font=("Times New Roman", 9)).pack(anchor="w")
+        tk.Radiobutton(self.grupo_formas, text="Polígono não preenchido", variable=self.var_preenchido, value=False, font=("Times New Roman", 9)).pack(anchor="w")
         tk.Button(self.grupo_formas, text="Adicionar", font=("Times New Roman", 9, "bold"), command=self.forma_vinda_da_interface).pack(fill="x", pady=5)
 
         # ====================================================
@@ -115,7 +115,7 @@ class AplicacaoCG:
         self.canvas.delete("all") 
         for elemento in self.elementosGeometricos:
             elemento.adiconar_na_tela(self.canvas, self.viewport)
-        self.canvas.create_rectangle(10, 10, 590, 590, outline="#f0f0f0", width=2, dash=(40,15))
+        self.canvas.create_rectangle(10, 10, 590, 590, outline="#000000", width=1, dash=(40,15))
 
     def salvar_formas_em_obj(self):
         with open("formas_aplicacao_cg.obj", "w", encoding="utf-8") as arquivo:
