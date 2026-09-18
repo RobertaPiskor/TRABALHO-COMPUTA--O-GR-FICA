@@ -17,6 +17,8 @@ class AplicacaoCG:
         self.criar_interface()
         self.carregar_dados_iniciais()
 
+    # =============================================
+    # IA -> foi usado ia para ajustar os botões e a lista (questão como por exemplo local onde ficaria, centralização, ...). O motivo foi estético
     def criar_interface(self):
         self.canvas = tk.Canvas(self.root, width=600, height=600, background="white", highlightthickness=0, bd=0)
         self.canvas.grid(row=0, column=1, padx=10, pady=10)

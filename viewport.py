@@ -160,29 +160,29 @@ class ViewPoint:
                 if x2 != x1:
                     m = (y2 - y1) / (x2 - x1)
                 else:
-                    m = float('inf')    # reta vertical
+                    m = None 
 
                 if sum(regiao_p1) > 0:
                     regiao_fora = regiao_p1
                     x_fora = x1
                     y_fora = y1
-                    ponto_fora = 1
+                    ponto_fora = "p1"
                 else:
                     regiao_fora = regiao_p2
                     x_fora = x2
                     y_fora = y2
-                    ponto_fora = 2
+                    ponto_fora = "p2"
 
                 if regiao_fora[0] == 1:
                     y_intersecao = 1.0
-                    if m != float('inf') and m != 0:
+                    if m != None and m != 0:
                         x_intersecao = x_fora + (1/m) * (1.0 - y_fora)
                     else:
                         x_intersecao = x_fora
 
                 elif regiao_fora[1] == 1:
                     y_intersecao = -1.0
-                    if m != float('inf') and m != 0:
+                    if m != None and m != 0:
                         x_intersecao = x_fora + (1/m) * (-1.0 - y_fora)
                     else:
                         x_intersecao = x_fora
@@ -195,7 +195,7 @@ class ViewPoint:
                     x_intersecao = -1.0
                     y_intersecao = m * (-1.0 - x_fora) + y_fora
 
-                if ponto_fora == 1:
+                if ponto_fora == "p1":
                     x1 = x_intersecao
                     y1 = y_intersecao
                 else:
@@ -212,8 +212,8 @@ class ViewPoint:
         p = [-delta_x, delta_x, -delta_y, delta_y]
         q = [x1+1, 1-x1, y1+1, 1-y1]
 
-        u = 0.0
-        v = 1.0
+        t1 = 0.0
+        t2 = 1.0
 
         for k in range(4):
             if p[k] == 0:
@@ -222,13 +222,18 @@ class ViewPoint:
             else:
                 r = q[k] / p[k]                
                 if p[k] < 0:
-                    u = max(u, r)
+                    t1 = max(t1, r)
                 elif p[k] > 0:
-                    v = min(v, r)
-        if u > v:
+                    t2 = min(t2, r)
+        if t1 > t2:
             return []
         
-        return [((x1 + u * delta_x), (y1 + u * delta_y)), ((x1 + v * delta_x), (y1 + v * delta_y))]
+        return [((x1 + t1 * delta_x), (y1 + t1 * delta_y)), ((x1 + t2 * delta_x), (y1 + t2 * delta_y))]
+
+    # ================================================
+    # OBSERVAÇÃO: Escolhemos esse algorítimo visto que foi o mais falado em aula de poliginos
+    # Pensamos em usar como principal base o "pseudo-código" de
+    # https://www.sunshine2k.de/coding/java/SutherlandHodgman/SutherlandHodgman.html
 
     def clip_poligono_sutherland_hodgeman(self, pontos_poligono):
         if not pontos_poligono or len(pontos_poligono) < 3:
