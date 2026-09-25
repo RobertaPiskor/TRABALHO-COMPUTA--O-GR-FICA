@@ -92,10 +92,14 @@ class ViewPoint:
         if not pontos_clipados:
             return []
 
-        for x_scn, y_scn in pontos_clipados:
-            xvp = (((x_scn + 1) / 2) * (self.xvpmax - self.xvpmin)+ self.xvpmin)
-            yvp = ((1 - ((y_scn + 1) / 2)) * (self.yvpmax - self.yvpmin)+ self.yvpmin)
-            posicao_pontos_tela.append((int(xvp), int(yvp)))
+        for ponto in pontos_clipados:
+            if ponto is None:
+                posicao_pontos_tela.append(None)
+            else:
+                x_scn, y_scn = ponto
+                xvp = (((x_scn + 1) / 2) * (self.xvpmax - self.xvpmin) + self.xvpmin)
+                yvp = ((1 - ((y_scn + 1) / 2)) * (self.yvpmax - self.yvpmin) + self.yvpmin)
+                posicao_pontos_tela.append((int(xvp), int(yvp)))
 
         return posicao_pontos_tela
 
@@ -116,6 +120,23 @@ class ViewPoint:
                 return self.clip_linha_cohen_sutherland(pontos_scn[0], pontos_scn[1])
             elif self.clipping == "Liang-Barsky":
                 return self.clip_linha_liang_barsky(pontos_scn[0], pontos_scn[1])
+        elif tipo_forma == "curva":
+            pontos_curva_clipados = []            
+            for i in range(len(pontos_scn) - 1):
+                p1 = pontos_scn[i]
+                p2 = pontos_scn[i+1]                
+                if self.clipping == "Cohen-Sutherland":
+                    linha_clipada = self.clip_linha_cohen_sutherland(p1, p2)
+                elif self.clipping == "Liang-Barsky":
+                    linha_clipada = self.clip_linha_liang_barsky(p1, p2)
+                else:
+                    linha_clipada = []                    
+                if linha_clipada:
+                    if pontos_curva_clipados and pontos_curva_clipados[-1] != linha_clipada[0]:
+                         pontos_curva_clipados.append(None)
+                    pontos_curva_clipados.append(linha_clipada[0])
+                    pontos_curva_clipados.append(linha_clipada[1])
+            return pontos_curva_clipados
         else: 
             return self.clip_poligono_sutherland_hodgeman(pontos_scn)
 

@@ -197,5 +197,6 @@ class JanelaTransformacoes:
             self.elemento.pontos = novos_pontos
 
         self.aplicacao_principal.redraw()
-        self.aplicacao_principal.salvar_formas_em_obj()
+        if self.elemento.tipo != "curva":
+            self.aplicacao_principal.salvar_formas_em_obj()
         self.janela.destroy()
