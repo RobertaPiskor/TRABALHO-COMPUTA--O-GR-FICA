@@ -36,6 +36,66 @@ class FormaCurva:
                 
         return pontos_gerados
 
+    def desenhar_curva_fwd_diff(self, n, x, dx, ddx, dddx, y, dy, ddy, dddy):
+        pontos_segmento = []
+        i = 1
+        x_velho = x
+        y_velho = y
+        pontos_segmento.append((x_velho, y_velho))
+        
+        while i < n:
+            i += 1
+            
+            x = x + dx 
+            dx = dx + ddx 
+            ddx = ddx + dddx
+            
+            y = y + dy 
+            dy = dy + ddy 
+            ddy = ddy + dddy
+            
+            pontos_segmento.append((x, y))
+            
+            x_velho = x
+            y_velho = y
+            
+        return pontos_segmento
+
+
+    def calcular_b_splines_com_Forward_differences(self, pontos_controle):
+        transformador = TransformarObjetos()
+        pontos_gerados = []
+        
+        Gx = []
+        Gy = []
+        for ponto in pontos_controle:
+            Gx.append(ponto[0])
+            Gy.append(ponto[1])
+
+        MBS = [[-1/6, 1/2, -1/2,1/6],[1/2, -1, 1/2, 0],[-1/2,0,1/2,0],[1/6,2/3,1/6,0]]
+        n = 100 
+        delta = 1/n
+
+        E = [[0, 0, 0, 1],[delta**3, delta**2, delta, 0],[6 * (delta**3), 2 * (delta**2), 0, 0],[6 * (delta**3), 0, 0, 0]]
+        E(S) = [[0,0,0,1],[S**3,S**2,S,0],[6*(S**3),2*(S**2),0,0],[6*(S**3),0,0,0]]
+        for i in range(len(pontos_controle) - 3):
+            Gx = [[pontos_controle[i][0]], [pontos_controle[i+1][0]], [pontos_controle[i+2][0]], [pontos_controle[i+3][0]]]
+            Gy = [[pontos_controle[i][1]], [pontos_controle[i+1][1]], [pontos_controle[i+2][1]], [pontos_controle[i+3][1]]]
+
+            Cx = transformador.multiplicacao_matrizes(MBS, Gx)
+            Cy = transformador.multiplicacao_matrizes(MBS, Gy)
+
+            Dx = transformador.multiplicacao_matrizes(E, Cx)
+            Dy = transformador.multiplicacao_matrizes(E, Cy)
+
+            x, dx, ddx, dddx = Dx[0][0], Dx[1][0], Dx[2][0], Dx[3][0]
+            y, dy, ddy, dddy = Dy[0][0], Dy[1][0], Dy[2][0], Dy[3][0]
+
+            pontos_do_segmento = self.desenhar_curva_fwd_diff(n, x, dx, ddx, dddx, y, dy, ddy, dddy)
+            pontos_gerados.extend(pontos_do_segmento)
+
+        return pontos_gerados
+
     def adiconar_na_tela(self, canvas, viewport):
         posicao_pontos_tela = viewport.RealizarNormalizacao(self.pontos, self.tipo)        
         if not posicao_pontos_tela:
