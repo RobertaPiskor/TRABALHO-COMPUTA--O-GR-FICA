@@ -7,16 +7,19 @@ from transfromadas_objetos import TransformarObjetos
 cores = ["#ff0000", "#bb00ff", "#008000", "#ffff00", "#ffa500", "#800080", "#ffc0cb", "#a52a2a", "#000000", "#ffffff", "#808080", "#00ffff", "#ff00ff", "#00ff00", "#000080", "#008080", "#808000", "#800000", "#00ffff", "#ffd700", "#c0c0c0", "#ff7f50", "#ff6347", "#fa8072", "#ee82ee", "#4b0082", "#40e0d0", "#f5f5dc", "#dc143c", "#f0e68c"]
 
 class FormaCurva:
-    def __init__(self, nome: str, pontos: list, cor: str):
+    def __init__(self, nome: str, pontos: list, cor: str, tipo_curva: str = "bezier"):
         self.nome = nome
         self.tipo = "curva"         
-        self.pontos_controle = pontos         
-        self.pontos = self.calcular_curva_bezier(self.pontos_controle)
+        self.pontos_controle = pontos
+        self.tipo_curva = tipo_curva        
+        if self.tipo_curva == "bspline":
+            self.pontos = self.calcular_b_splines_com_Forward_differences(self.pontos_controle)
+        else:
+            self.pontos = self.calcular_curva_bezier(self.pontos_controle)
         if cor is None:
             self.cor = random.choice(cores)
         else:
             self.cor = cor
-
     def calcular_curva_bezier(self, pontos_controle):
         transformador = TransformarObjetos()
         pontos_gerados = []
@@ -77,7 +80,7 @@ class FormaCurva:
         delta = 1/n
 
         E = [[0, 0, 0, 1],[delta**3, delta**2, delta, 0],[6 * (delta**3), 2 * (delta**2), 0, 0],[6 * (delta**3), 0, 0, 0]]
-        E(S) = [[0,0,0,1],[S**3,S**2,S,0],[6*(S**3),2*(S**2),0,0],[6*(S**3),0,0,0]]
+
         for i in range(len(pontos_controle) - 3):
             Gx = [[pontos_controle[i][0]], [pontos_controle[i+1][0]], [pontos_controle[i+2][0]], [pontos_controle[i+3][0]]]
             Gy = [[pontos_controle[i][1]], [pontos_controle[i+1][1]], [pontos_controle[i+2][1]], [pontos_controle[i+3][1]]]

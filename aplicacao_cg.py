@@ -31,11 +31,17 @@ class AplicacaoCG:
         self.frame_botoes.grid(row=0, column=0, sticky="n")
 
         # =========================
-        # 1. Adicionar Curva Bezier
-        self.grupo_curvas = tk.LabelFrame(self.frame_botoes, text="Adicionar Curva Bezier", font=("Times New Roman", 10, "bold"), padx=10, pady=10)
+        # 1. Adicionar Curva Bezier ou B-Spline
+        self.grupo_curvas = tk.LabelFrame(self.frame_botoes, text="Adicionar Curvas", font=("Times New Roman", 10, "bold"), padx=10, pady=10)
         self.grupo_curvas.pack(fill="x", pady=5)
 
-        tk.Label(self.grupo_curvas, text="Nome da curva:", font=("Times New Roman", 9)).pack(anchor="w")
+        # Adiciona a variável para capturar a escolha do Radiobutton
+        self.var_tipo_curva = tk.StringVar(value="bezier")
+        
+        tk.Radiobutton(self.grupo_curvas, text="Bézier", variable=self.var_tipo_curva, value="bezier", font=("Times New Roman", 9)).pack(anchor="w")
+        tk.Radiobutton(self.grupo_curvas, text="B-Spline (Forward Diff)", variable=self.var_tipo_curva, value="bspline", font=("Times New Roman", 9)).pack(anchor="w")
+
+        tk.Label(self.grupo_curvas, text="Nome da curva:", font=("Times New Roman", 9)).pack(anchor="w", pady=(5, 0))
         self.entrada_nome_curva = tk.Entry(self.grupo_curvas, width=20)
         self.entrada_nome_curva.pack(fill="x", pady=2)
 
@@ -48,7 +54,7 @@ class AplicacaoCG:
         self.entrada_cor_curva.pack(fill="x", pady=2)
 
         tk.Button(self.grupo_curvas, text="Adicionar Curva", font=("Times New Roman", 9, "bold"), command=self.forma_vinda_da_interface_curva).pack(fill="x", pady=5)
-        
+
         # ========================
         # 2. Adicionar Formas Base
         self.grupo_formas = tk.LabelFrame(self.frame_botoes, text="Adicionar Formas", font=("Times New Roman", 10, "bold"), padx=10, pady=10)
@@ -261,7 +267,7 @@ class AplicacaoCG:
         self.entrada_cor.delete(0, tk.END)
         self.var_preenchido.set(False)
 
-    def processar_entrada_curva(self, nome: str, pontos_string: str, cor: str = None):
+    def processar_entrada_curva(self, nome: str, pontos_string: str, cor: str = None, tipo_curva: str = "bezier"):
         pontos = list(eval(f"[{pontos_string}]"))
         
         if len(pontos) < 4:
@@ -278,8 +284,8 @@ class AplicacaoCG:
             
         pontos_formatados = [(float(x), float(y)) for x, y in pontos]        
         
-        forma = FormaCurva(nome, pontos_formatados, cor_hexadecimal)
-        
+        forma = FormaCurva(nome, pontos_formatados, cor_hexadecimal, tipo_curva)
+
         if forma is not None:
             self.elementosGeometricos.append(forma)
             self.lista_elementos.insert(tk.END, forma.nome)
@@ -292,9 +298,10 @@ class AplicacaoCG:
         nome = self.entrada_nome_curva.get().strip()
         pontos_string = self.entrada_pontos_curva.get().strip()
         cor = self.entrada_cor_curva.get().strip() or None
+        tipo_curva = self.var_tipo_curva.get()
 
         if nome and pontos_string:
-            self.processar_entrada_curva(nome, pontos_string, cor)
+            self.processar_entrada_curva(nome, pontos_string, cor, tipo_curva)
 
         # Enviou? Então tira tudo que estava escrito antes
         self.entrada_nome_curva.delete(0, tk.END)
