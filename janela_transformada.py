@@ -1,6 +1,4 @@
 import tkinter as tk
-import math
-from formas_geometricas import FormasGeometricas
 from transfromadas_objetos import TransformarObjetos
 
 # ================================
@@ -8,195 +6,161 @@ from transfromadas_objetos import TransformarObjetos
 # ================================
 
 class JanelaTransformacoes:
-
     def __init__(self, janela_pai, elemento, aplicacao_principal):
         self.elemento = elemento
-        self.aplicacao_principal = (aplicacao_principal)
+        self.aplicacao_principal = aplicacao_principal
         self.transformacoes = []
         self.janela = tk.Toplevel(janela_pai)
         self.janela.title(f"TRANSFORMAR: {self.elemento.nome}")
-        self.janela.geometry("650x450")
-        self.janela.wait_visibility()
+        self.janela.geometry("700x550")
         self.janela.grab_set()
         self.criar_interface()
-
 
     # =================================
     # INTERFACE EM SI (BOTÕES E LISTA)
     # =================================
 
     def criar_interface(self):
-        frame_principal = tk.Frame(self.janela, padx=10, pady=10)
-        frame_principal.pack(fill="both", expand=True)
-
-        frame_esquerda = tk.Frame(frame_principal)
-        frame_esquerda.pack(side="left", fill="y", padx=(0, 20))
+        f_esq = tk.Frame(self.janela, padx=10, pady=10)
+        f_esq.pack(side="left", fill="y")
+        f_dir = tk.Frame(self.janela, padx=10, pady=10)
+        f_dir.pack(side="right", fill="both", expand=True)
 
     # ====================================
     # botões e cédula para inserir valores
 
-        tk.Label(frame_esquerda, text="Translação (xp, yp) - Considera rotação da window:", font=("Times New Roman", 10, "bold")).pack(pady=(0, 5))
-        regiao_translacao = tk.Frame(frame_esquerda)
-        regiao_translacao.pack(pady=(0, 15))
-        self.recebido_translacao_dx = tk.Entry(regiao_translacao, width=5)
-        self.recebido_translacao_dx.pack(side="left", padx=2)
-        self.recebido_translacao_dy = tk.Entry(regiao_translacao, width=5)
-        self.recebido_translacao_dy.pack(side="left", padx=2)
-        tk.Button(regiao_translacao, text="Adicionar", font=("Times New Roman", 10, "bold"), command=self.adicionar_translacao).pack(side="left", padx=5)
+        tk.Label(f_esq, text="Translação (DX, DY, DZ):", font=("Times New Roman", 10, "bold")).pack(pady=(5,2))
+        f_trans = tk.Frame(f_esq); f_trans.pack()
+        self.ent_dx = tk.Entry(f_trans, width=5); self.ent_dx.pack(side="left", padx=2)
+        self.ent_dy = tk.Entry(f_trans, width=5); self.ent_dy.pack(side="left", padx=2)
+        self.ent_dz = tk.Entry(f_trans, width=5); self.ent_dz.pack(side="left", padx=2)
+        tk.Button(f_trans, text="Add", command=lambda: self.adicionar_transformacao("translacao")).pack(side="left", padx=2)
 
-        tk.Label(frame_esquerda, text="Rotação em torno do centro do objeto (Graus):", font=("Times New Roman", 10, "bold")).pack(pady=(5, 5))
-        regiao_rotacao = tk.Frame(frame_esquerda)
-        regiao_rotacao.pack(pady=(0, 15))
-        self.recebido_angulo_rotacao_c_o = tk.Entry(regiao_rotacao, width=10)
-        self.recebido_angulo_rotacao_c_o.pack(side="left", padx=2)
-        tk.Button(regiao_rotacao, text="Adicionar", font=("Times New Roman", 10, "bold"), command=self.adicionar_rotacao_centro_objeto).pack(side="left", padx=5)
+        tk.Label(f_esq, text="Escalonamento (SX, SY, SZ):", font=("Times New Roman", 10, "bold")).pack(pady=(15,2))
+        f_esc = tk.Frame(f_esq); f_esc.pack()
+        self.ent_sx = tk.Entry(f_esc, width=5); self.ent_sx.pack(side="left", padx=2)
+        self.ent_sy = tk.Entry(f_esc, width=5); self.ent_sy.pack(side="left", padx=2)
+        self.ent_sz = tk.Entry(f_esc, width=5); self.ent_sz.pack(side="left", padx=2)
+        tk.Button(f_esc, text="Add", command=lambda: self.adicionar_transformacao("escalonamento")).pack(side="left", padx=2)
 
-        tk.Label(frame_esquerda, text="Rotação em torno do centro do mundo (Graus):", font=("Times New Roman", 10, "bold")).pack(pady=(5, 5))
-        regiao_rotacao_origem = tk.Frame(frame_esquerda)
-        regiao_rotacao_origem.pack(pady=(0, 15))
-        self.recebido_angulo_rotacao_c_m = tk.Entry(regiao_rotacao_origem, width=10)
-        self.recebido_angulo_rotacao_c_m.pack(side="left", padx=2)
-        tk.Button(regiao_rotacao_origem, text="Adicionar", font=("Times New Roman", 10, "bold"), command=self.adicionar_rotacao_centro_mundo).pack(side="left", padx=5)
+        tk.Label(f_esq, text="Rotação no Centro do Objeto:", font=("Times New Roman", 10, "bold")).pack(pady=(15,2))
+        f_rot = tk.Frame(f_esq); f_rot.pack()
+        tk.Label(f_rot, text="Ângulo:").pack(side="left")
+        self.ent_ang_c = tk.Entry(f_rot, width=5); self.ent_ang_c.pack(side="left", padx=2)
+        self.var_eixo = tk.StringVar(value="X")
+        tk.OptionMenu(f_rot, self.var_eixo, "X", "Y", "Z").pack(side="left", padx=2)
+        tk.Button(f_rot, text="Add", command=lambda: self.adicionar_transformacao("rot_centro")).pack(side="left", padx=2)
 
-        tk.Label(frame_esquerda, text="Rotação em torno de um ponto qualquer (Graus, X, Y):", font=("Times New Roman", 10, "bold")).pack(pady=(5, 5))
-        regiao_rotacao_arbitrario = tk.Frame(frame_esquerda)
-        regiao_rotacao_arbitrario.pack(pady=(0, 15))
-        self.recebido_angulo_rotacao_p_a = tk.Entry(regiao_rotacao_arbitrario, width=5)
-        self.recebido_angulo_rotacao_p_a.pack(side="left", padx=2)
-        self.recebido_rotacao_pa_x = tk.Entry(regiao_rotacao_arbitrario, width=5)
-        self.recebido_rotacao_pa_x.pack(side="left", padx=2)
-        self.recebido_rotacao_pa_y = tk.Entry(regiao_rotacao_arbitrario, width=5)
-        self.recebido_rotacao_pa_y.pack(side="left", padx=2)
-        tk.Button(regiao_rotacao_arbitrario, text="Adicionar", font=("Times New Roman", 10, "bold"), command=self.adicionar_rotacao_ponto_arbitrario).pack(side="left", padx=5)
+        tk.Label(f_esq, text="Rotação no Centro do Mundo (0,0,0):", font=("Times New Roman", 10, "bold")).pack(pady=(15,2))
+        f_rot_m = tk.Frame(f_esq); f_rot_m.pack()
+        tk.Label(f_rot_m, text="Ângulo:").pack(side="left")
+        self.ent_ang_m = tk.Entry(f_rot_m, width=5); self.ent_ang_m.pack(side="left", padx=2)
+        self.var_eixo_m = tk.StringVar(value="X")
+        tk.OptionMenu(f_rot_m, self.var_eixo_m, "X", "Y", "Z").pack(side="left", padx=2)
+        tk.Button(f_rot_m, text="Add", command=lambda: self.adicionar_transformacao("rot_mundo")).pack(side="left", padx=2)
 
-        tk.Label(frame_esquerda, text="Escalonamento (Sx, Sy):", font=("Times New Roman", 10, "bold")).pack(pady=(5, 5))
-        regiao_escalonamento = tk.Frame(frame_esquerda)
-        regiao_escalonamento.pack(pady=(0, 15))
-        self.recebido_escalonamento_sx = tk.Entry(regiao_escalonamento, width=5)
-        self.recebido_escalonamento_sx.pack(side="left", padx=2)
-        self.recebido_escalonamento_sy = tk.Entry(regiao_escalonamento, width=5)
-        self.recebido_escalonamento_sy.pack(side="left", padx=2)
-        tk.Button(regiao_escalonamento, text="Adicionar", font=("Times New Roman", 10, "bold"), command=self.adicionar_escalonamento).pack(side="left", padx=5)
+        tk.Label(f_esq, text="Rotação Eixo Arbitrário (Ang, P1x,y,z, P2x,y,z):", font=("Times New Roman", 10, "bold")).pack(pady=(15,2))
+        f_arb = tk.Frame(f_esq); f_arb.pack()
+        self.ent_ang_arb = tk.Entry(f_arb, width=4); self.ent_ang_arb.pack(side="left")
+        self.ent_p1x = tk.Entry(f_arb, width=3); self.ent_p1x.pack(side="left")
+        self.ent_p1y = tk.Entry(f_arb, width=3); self.ent_p1y.pack(side="left")
+        self.ent_p1z = tk.Entry(f_arb, width=3); self.ent_p1z.pack(side="left")
+        self.ent_p2x = tk.Entry(f_arb, width=3); self.ent_p2x.pack(side="left")
+        self.ent_p2y = tk.Entry(f_arb, width=3); self.ent_p2y.pack(side="left")
+        self.ent_p2z = tk.Entry(f_arb, width=3); self.ent_p2z.pack(side="left")
+        tk.Button(f_arb, text="Add", command=lambda: self.adicionar_transformacao("rot_arb")).pack(side="left")
 
-    # =============================
-    # fazer lista das transformadas
+        # =============================
+        # fazer lista das transformadas
+        tk.Label(f_dir, text="Fila de Transformações:", font=("Times New Roman", 12, "bold")).pack(anchor="w")
+        self.lista = tk.Listbox(f_dir, bg="white", height=15); self.lista.pack(fill="both", expand=True, pady=(0,10))
+        tk.Button(f_dir, text="Aplicar Transformações", font=("Times New Roman", 11, "bold"), command=self.realizar_transformacoes_forma).pack(fill="x")
 
-        frame_direita = tk.Frame(frame_principal)
-        frame_direita.pack(side="right", fill="both", expand=True)
-        tk.Label(frame_direita, text="Fila de Transformações:", font=("Times New Roman", 12, "bold")).pack(anchor="w", pady=(0, 5))
-        frame_lista = tk.Frame(frame_direita)
-        frame_lista.pack(fill="both", expand=True, pady=(0, 10))
-        self.lista_transformacoes = tk.Listbox(frame_lista, bg="white", height=12)
-        self.lista_transformacoes.pack(side="left", fill="both", expand=True)
+    def adicionar_transformacao(self, tipo):
+        try:
+            if tipo == "translacao":
+                dx = float(self.ent_dx.get() or 0.0)
+                dy = float(self.ent_dy.get() or 0.0)
+                dz = float(self.ent_dz.get() or 0.0)
+                self.transformacoes.append(["translacao", dx, dy, dz])
+                self.lista.insert(tk.END, f"Translação: X={dx}, Y={dy}, Z={dz}")
+                self.ent_dx.delete(0, tk.END); self.ent_dy.delete(0, tk.END); self.ent_dz.delete(0, tk.END)
+                
+            elif tipo == "escalonamento":
+                sx = float(self.ent_sx.get() or 1.0)
+                sy = float(self.ent_sy.get() or 1.0)
+                sz = float(self.ent_sz.get() or 1.0)
+                self.transformacoes.append(["escalonamento", sx, sy, sz])
+                self.lista.insert(tk.END, f"Escalonamento: Sx={sx}, Sy={sy}, Sz={sz}")
+                self.ent_sx.delete(0, tk.END); self.ent_sy.delete(0, tk.END); self.ent_sz.delete(0, tk.END)
+                
+            elif tipo == "rot_centro":
+                ang = float(self.ent_ang_c.get() or 0.0)
+                eixo = self.var_eixo.get()
+                self.transformacoes.append(["rot_centro", ang, eixo])
+                self.lista.insert(tk.END, f"Rotação Centro {eixo}: {ang}°")
+                self.ent_ang_c.delete(0, tk.END)
 
-        scrollbar = tk.Scrollbar(frame_lista, orient="vertical", command=self.lista_transformacoes.yview)
-        scrollbar.pack(side="right", fill="y")
-
-        self.lista_transformacoes.config(yscrollcommand=scrollbar.set)
-
-    # ========================================
-    # botão que envia todas as transformações
-
-        tk.Button(frame_direita, text="Aplicar transformações", font=("Times New Roman", 11, "bold"), command=self.realizar_transformacoes_forma).pack(fill="x")
-
-    # ========================================
-    # O QUE OCORRE QUANDO SE APERTA UM BOTÃO?
-    # ========================================
-
-    def adicionar_translacao(self):
-        dx_tela = float(self.recebido_translacao_dx.get())
-        dy_tela = float(self.recebido_translacao_dy.get())
-
-        angulo_window = self.aplicacao_principal.viewport.angulo_vup
-        rad = math.radians(angulo_window)
-
-        translacao_dx = dx_tela * math.cos(rad) - dy_tela * math.sin(rad)
-        translacao_dy = dx_tela * math.sin(rad) + dy_tela * math.cos(rad)
-
-        self.transformacoes.append(["translacao", translacao_dx, translacao_dy])
-        self.lista_transformacoes.insert(tk.END, "Translação: X={}, Y={}".format(dx_tela, dy_tela))
-        self.recebido_translacao_dx.delete(0,tk.END)
-        self.recebido_translacao_dy.delete(0,tk.END)
-
-    def adicionar_rotacao_centro_objeto(self):
-        angulo = float(self.recebido_angulo_rotacao_c_o.get())
-        self.transformacoes.append(["rotacao_centro_objeto", angulo])
-        self.lista_transformacoes.insert(tk.END,"Rotação centro objeto: {}°".format(angulo))
-        self.recebido_angulo_rotacao_c_o.delete(0,tk.END)
-
-    def adicionar_rotacao_centro_mundo(self):
-        angulo = float(self.recebido_angulo_rotacao_c_m.get())
-        self.transformacoes.append(["rotacao_centro_mundo", angulo])
-        self.lista_transformacoes.insert(tk.END,"Rotação centro mundo: {}°".format(angulo))
-        self.recebido_angulo_rotacao_c_m.delete(0,tk.END)
-
-    def adicionar_rotacao_ponto_arbitrario(self):
-        angulo = float(self.recebido_angulo_rotacao_p_a.get())
-        x = float(self.recebido_rotacao_pa_x.get())
-        y = float(self.recebido_rotacao_pa_y.get())
-        self.transformacoes.append(["rotacao_ponto_arbitrario", angulo, x, y])
-        self.lista_transformacoes.insert(tk.END, "Rotação ponto arbitrário: {}°, X={}, Y={}".format(angulo, x, y))
-        self.recebido_angulo_rotacao_p_a.delete(0,tk.END)
-        self.recebido_rotacao_pa_x.delete(0,tk.END)
-        self.recebido_rotacao_pa_y.delete(0,tk.END)
-
-    def adicionar_escalonamento(self):
-        sx = float(self.recebido_escalonamento_sx.get())
-        sy = float(self.recebido_escalonamento_sy.get())
-        self.transformacoes.append(["escalonamento", sx, sy])
-        self.lista_transformacoes.insert(tk.END, "Escalonamento: Sx={}, Sy={}".format(sx,sy))
-        self.recebido_escalonamento_sx.delete(0, tk.END)
-        self.recebido_escalonamento_sy.delete(0, tk.END)
-
-    # =======================================================================================
-    # pega todas as transformações faz a matriz e depois de pegar todas as matrizes, calcula
+            elif tipo == "rot_mundo":
+                ang = float(self.ent_ang_m.get() or 0.0)
+                eixo = self.var_eixo_m.get()
+                self.transformacoes.append(["rot_mundo", ang, eixo])
+                self.lista.insert(tk.END, f"Rotação Mundo {eixo}: {ang}°")
+                self.ent_ang_m.delete(0, tk.END)
+                
+            elif tipo == "rot_arb":
+                ang = float(self.ent_ang_arb.get() or 0.0)
+                p1 = [float(self.ent_p1x.get() or 0.0), float(self.ent_p1y.get() or 0.0), float(self.ent_p1z.get() or 0.0)]
+                p2 = [float(self.ent_p2x.get() or 0.0), float(self.ent_p2y.get() or 0.0), float(self.ent_p2z.get() or 0.0)]
+                self.transformacoes.append(["rot_arb", ang, p1, p2])
+                self.lista.insert(tk.END, f"Rotação Eixo Arbitrário: {ang}°")
+                self.ent_ang_arb.delete(0, tk.END)
+                self.ent_p1x.delete(0, tk.END); self.ent_p1y.delete(0, tk.END); self.ent_p1z.delete(0, tk.END)
+                self.ent_p2x.delete(0, tk.END); self.ent_p2y.delete(0, tk.END); self.ent_p2z.delete(0, tk.END)
+        except ValueError:
+            print("ERRO!")
 
     def realizar_transformacoes_forma(self):
-        transformador = TransformarObjetos()
-        matriz_acomulada = None
-        x_centro, y_centro = transformador.centro_poligono(self.elemento.pontos)        
-        for i in range(len(self.transformacoes)):
-            tipo_transf = self.transformacoes[i][0]
-            if tipo_transf == "translacao":
-                matriz_transformada = transformador.fazer_matriz_translacao(self.transformacoes[i][1], self.transformacoes[i][2])
-            elif tipo_transf == "rotacao_centro_objeto":
-                if matriz_acomulada is None:
-                    x_centro_atual = x_centro
-                    y_centro_atual = y_centro
-                else:
-                    ponto_centro = [[x_centro, y_centro, 1]]
-                    novo_centro = transformador.multiplicacao_matrizes(ponto_centro, matriz_acomulada)
-                    x_centro_atual = novo_centro[0][0]
-                    y_centro_atual = novo_centro[0][1]
-                matriz_transformada = transformador.fazer_matriz_rotacao_centro_objeto(self.transformacoes[i][1], x_centro_atual, y_centro_atual)
-            elif tipo_transf == "escalonamento":
-                if matriz_acomulada is None:
-                    x_centro_atual = x_centro
-                    y_centro_atual = y_centro
-                else:
-                    ponto_centro = [[x_centro, y_centro, 1]]
-                    novo_centro = transformador.multiplicacao_matrizes(ponto_centro, matriz_acomulada)
-                    x_centro_atual = novo_centro[0][0]
-                    y_centro_atual = novo_centro[0][1]
-                matriz_transformada = transformador.fazer_matriz_escalonamento(self.transformacoes[i][1], self.transformacoes[i][2], x_centro_atual, y_centro_atual)
-                
-            elif tipo_transf == "rotacao_ponto_arbitrario":
-                matriz_transformada = transformador.fazer_matriz_rotacao_ponto_arbritario(self.transformacoes[i][1], self.transformacoes[i][2], self.transformacoes[i][3])
-                
-            elif tipo_transf == "rotacao_centro_mundo":
-                matriz_transformada = transformador.fazer_matriz_rotacao_centro_mundo(self.transformacoes[i][1])
-                
-            else:
-                print("ERRO!")
-            if matriz_acomulada is None:
-                matriz_acomulada = matriz_transformada
-            else:
-                matriz_acomulada = transformador.multiplicacao_matrizes(matriz_acomulada, matriz_transformada)
-        if matriz_acomulada is not None:
-            novos_pontos = transformador.aplicar_matriz_transformacao(self.elemento.pontos, matriz_acomulada)
-            self.elemento.pontos = novos_pontos
+        transformacao = TransformarObjetos()
+        matriz_acumulada = transformacao.matriz_identidade()
+        
+        if getattr(self.elemento, 'tipo', '') == "CAMERA": 
+            cx, cy, cz = self.elemento.vp.vrp
+        else: 
+            cx, cy, cz = transformacao.centro_poligono(self.elemento.pontos)
+        
+        for op in self.transformacoes:
+            tipo = op[0]
+            if tipo == "translacao": 
+                m = transformacao.fazer_matriz_translacao(op[1], op[2], op[3])
+            elif tipo == "escalonamento": 
+                m = transformacao.fazer_matriz_escalonamento(op[1], op[2], op[3], cx, cy, cz)
+            elif tipo == "rot_centro":
+                if op[2] == "X": r = transformacao.fazer_matriz_rotacao_x(op[1])
+                elif op[2] == "Y": r = transformacao.fazer_matriz_rotacao_y(op[1])
+                else: r = transformacao.fazer_matriz_rotacao_z(op[1])
+                ida = transformacao.fazer_matriz_translacao(-cx, -cy, -cz)
+                volta = transformacao.fazer_matriz_translacao(cx, cy, cz)
+                m = transformacao.multiplicacao_matrizes(transformacao.multiplicacao_matrizes(ida, r), volta)
+            elif tipo == "rot_mundo":
+                if op[2] == "X": m = transformacao.fazer_matriz_rotacao_x(op[1])
+                elif op[2] == "Y": m = transformacao.fazer_matriz_rotacao_y(op[1])
+                else: m = transformacao.fazer_matriz_rotacao_z(op[1])
+            elif tipo == "rot_arb": 
+                m = transformacao.fazer_matriz_rotacao_eixo_arbitrario(op[1], op[2], op[3])
+            
+            matriz_acumulada = transformacao.multiplicacao_matrizes(matriz_acumulada, m)            
+            nc = transformacao.multiplicacao_matrizes([[cx, cy, cz, 1]], matriz_acumulada)[0]
+            cx, cy, cz = nc[0], nc[1], nc[2]
+
+        if getattr(self.elemento, 'tipo', '') == "CAMERA": 
+            self.elemento.aplicar_transformacao_3d(matriz_acumulada, transformacao)
+        else: 
+            self.elemento.pontos = transformacao.aplicar_matriz_transformacao(self.elemento.pontos, matriz_acumulada)
 
         self.aplicacao_principal.redraw()
-        if self.elemento.tipo != "curva":
+        
+        if getattr(self.elemento, 'tipo', '') not in ["curva", "CAMERA"]:
             self.aplicacao_principal.salvar_formas_em_obj()
+            
         self.janela.destroy()
