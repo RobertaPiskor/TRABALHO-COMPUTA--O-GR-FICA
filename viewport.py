@@ -15,12 +15,14 @@ class ViewPoint:
         self.window_width = float(largura)
         self.window_height = float(altura)
 
-        self.vrp = [0.0, 0.0, 300.0] 
+        self.vrp = [0.0, 0.0, 0.0]
         self.vpn = [0.0, 0.0, 1.0]  
         self.vup = [0.0, 1.0, 0.0]   
 
         self.clipping = "Cohen-Sutherland"
-
+        self.d = 600.0
+        self.observacao = "ortogonal"
+    
     def calcular_vetores_uvn(self):
         mod_vpn = math.sqrt(self.vpn[0]**2 + self.vpn[1]**2 + self.vpn[2]**2)
         n = [0, 0, 0] if mod_vpn == 0 else [self.vpn[0]/mod_vpn, self.vpn[1]/mod_vpn, self.vpn[2]/mod_vpn]
@@ -79,49 +81,97 @@ class ViewPoint:
         self.vrp[1] -= v[1] * passo
         self.vrp[2] -= v[2] * passo
 
+    def mapear_para_camera(self, pontos):
+        transformador = TransformarObjetos()
+        u, v, n = self.calcular_vetores_uvn()
+
+        cop_x = self.vrp[0] + self.d * n[0]
+        cop_y = self.vrp[1] + self.d * n[1]
+        cop_z = self.vrp[2] + self.d * n[2]
+
+        T = transformador.fazer_matriz_translacao(-cop_x, -cop_y, -cop_z)
+        R = [[u[0], v[0], n[0], 0],[u[1], v[1], n[1], 0],[u[2], v[2], n[2], 0],[0,0,0, 1]]
+
+        matriz_src = transformador.multiplicacao_matrizes(T, R)
+        return transformador.aplicar_matriz_transformacao(pontos, matriz_src)
+    
+    def projetar_perspectiva(self, pontos_camera):
+        pontos_projetados_2d = []
+        for x, y, z in pontos_camera:
+            prof = -z
+            pontos_projetados_2d.append((self.d * x / prof, self.d * y / prof, 0.0))
+        return pontos_projetados_2d
+
     def rotacao_window(self, angulo_graus):
         transformador = TransformarObjetos()
-        M_rot = transformador.fazer_matriz_rotacao_eixo_arbitrario(angulo_graus, 0, 0, 0, self.vpn[0], self.vpn[1], self.vpn[2])
+        M_rot = transformador.fazer_matriz_rotacao_eixo_arbitrario(angulo_graus, [0, 0, 0], self.vpn)
         novo_vup = transformador.aplicar_matriz_transformacao([[self.vup[0], self.vup[1], self.vup[2]]], M_rot)
         self.vup = [novo_vup[0][0], novo_vup[0][1], novo_vup[0][2]]
-
+    
     def RealizarNormalizacao(self, pontos, tipo_forma):
-        transformador = TransformarObjetos()
+        if self.observacao == "ortogonal":
+            transformador = TransformarObjetos()
 
-        T = transformador.fazer_matriz_translacao(-self.vrp[0], -self.vrp[1], -self.vrp[2])
-        u, v, n = self.calcular_vetores_uvn()
-        
-        R = [[u[0], v[0], n[0], 0],[u[1], v[1], n[1], 0],[u[2], v[2], n[2], 0],[0,0,0, 1]]
-        
-        matriz_src = transformador.multiplicacao_matrizes(T, R)
-        pontos_src = transformador.aplicar_matriz_transformacao(pontos, matriz_src)
+            T = transformador.fazer_matriz_translacao(-self.vrp[0], -self.vrp[1], -self.vrp[2])
+            u, v, n = self.calcular_vetores_uvn()
+            
+            R = [[u[0], v[0], n[0], 0],[u[1], v[1], n[1], 0],[u[2], v[2], n[2], 0],[0,0,0, 1]]
+            
+            matriz_src = transformador.multiplicacao_matrizes(T, R)
+            pontos_src = transformador.aplicar_matriz_transformacao(pontos, matriz_src)
 
-        pontos_projetados_2d = [(p[0], p[1], 0.0) for p in pontos_src]
+            pontos_projetados_2d = [(p[0], p[1], 0.0) for p in pontos_src]
 
-        sx = 2.0 / self.window_width
-        sy = 2.0 / self.window_height
-        matriz_escalonamento = transformador.fazer_matriz_escalonamento(sx, sy, 1.0, 0.0, 0.0, 0.0)        
-        
-        pontos_scn_3d = transformador.aplicar_matriz_transformacao(pontos_projetados_2d, matriz_escalonamento)
-        
-        pontos_scn = [(p[0], p[1]) for p in pontos_scn_3d]
+            sx = 2.0 / self.window_width
+            sy = 2.0 / self.window_height
+            matriz_escalonamento = transformador.fazer_matriz_escalonamento(sx, sy, 1.0, 0.0, 0.0, 0.0)        
+            
+            pontos_scn_3d = transformador.aplicar_matriz_transformacao(pontos_projetados_2d, matriz_escalonamento)
+            
+            pontos_scn = [(p[0], p[1]) for p in pontos_scn_3d]
 
-        pontos_clipados = self.aplicar_clipping(pontos_scn, tipo_forma)
+            pontos_clipados = self.aplicar_clipping(pontos_scn, tipo_forma)
 
-        if not pontos_clipados:
-            return []
+            if not pontos_clipados:
+                return []
 
-        posicao_pontos_tela = []
-        for ponto in pontos_clipados:
-            if ponto is None:
-                posicao_pontos_tela.append(None)
-            else:
-                x_scn, y_scn = ponto
-                xvp = (((x_scn + 1) / 2) * (self.xvpmax - self.xvpmin) + self.xvpmin)
-                yvp = ((1 - ((y_scn + 1) / 2)) * (self.yvpmax - self.yvpmin) + self.yvpmin)
-                posicao_pontos_tela.append((int(xvp), int(yvp)))
+            posicao_pontos_tela = []
+            for ponto in pontos_clipados:
+                if ponto is None:
+                    posicao_pontos_tela.append(None)
+                else:
+                    x_scn, y_scn = ponto
+                    xvp = (((x_scn + 1) / 2) * (self.xvpmax - self.xvpmin) + self.xvpmin)
+                    yvp = ((1 - ((y_scn + 1) / 2)) * (self.yvpmax - self.yvpmin) + self.yvpmin)
+                    posicao_pontos_tela.append((int(xvp), int(yvp)))
 
-        return posicao_pontos_tela
+            return posicao_pontos_tela
+        else:
+            pontos_camera = self.mapear_para_camera(pontos)
+            pontos_projetados = self.projetar_perspectiva(pontos_camera)
+
+            transformador = TransformarObjetos()
+            sx = 2.0 / self.window_width
+            sy = 2.0 / self.window_height
+            matriz_escalonamento = transformador.fazer_matriz_escalonamento(sx, sy, 1.0, 0.0, 0.0, 0.0)        
+            pontos_scn_3d = transformador.aplicar_matriz_transformacao(pontos_projetados, matriz_escalonamento)
+            pontos_scn = [(p[0], p[1]) for p in pontos_scn_3d]
+
+            pontos_clipados = self.aplicar_clipping(pontos_scn, tipo_forma)
+            if not pontos_clipados:
+                return []
+
+            posicao_pontos_tela = []
+            for ponto in pontos_clipados:
+                if ponto is None:
+                    posicao_pontos_tela.append(None)
+                else:
+                    x_scn, y_scn = ponto
+                    xvp = (((x_scn + 1) / 2) * (self.xvpmax - self.xvpmin) + self.xvpmin)
+                    yvp = ((1 - ((y_scn + 1) / 2)) * (self.yvpmax - self.yvpmin) + self.yvpmin)
+                    posicao_pontos_tela.append((int(xvp), int(yvp)))
+
+            return posicao_pontos_tela
 
     def aplicar_clipping(self, pontos_scn, tipo_forma):
         if len(pontos_scn) == 0:

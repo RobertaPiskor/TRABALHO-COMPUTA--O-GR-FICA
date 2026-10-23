@@ -1,0 +1,7 @@
+mtllib cores.mtl
+o 6789
+usemtl mat_bb00ff
+# tipo linha
+v 100.0 100.0 100.0
+v 0.0 0.0 0.0
+l 1 2

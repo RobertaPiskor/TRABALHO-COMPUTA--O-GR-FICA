@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 from transfromadas_objetos import TransformarObjetos
 
 # ================================
@@ -34,14 +35,14 @@ class JanelaTransformacoes:
         self.ent_dx = tk.Entry(f_trans, width=5); self.ent_dx.pack(side="left", padx=2)
         self.ent_dy = tk.Entry(f_trans, width=5); self.ent_dy.pack(side="left", padx=2)
         self.ent_dz = tk.Entry(f_trans, width=5); self.ent_dz.pack(side="left", padx=2)
-        tk.Button(f_trans, text="Add", command=lambda: self.adicionar_transformacao("translacao")).pack(side="left", padx=2)
+        tk.Button(f_trans, text="Adicionar", command=lambda: self.adicionar_transformacao("translacao")).pack(side="left", padx=2)
 
         tk.Label(f_esq, text="Escalonamento (SX, SY, SZ):", font=("Times New Roman", 10, "bold")).pack(pady=(15,2))
         f_esc = tk.Frame(f_esq); f_esc.pack()
         self.ent_sx = tk.Entry(f_esc, width=5); self.ent_sx.pack(side="left", padx=2)
         self.ent_sy = tk.Entry(f_esc, width=5); self.ent_sy.pack(side="left", padx=2)
         self.ent_sz = tk.Entry(f_esc, width=5); self.ent_sz.pack(side="left", padx=2)
-        tk.Button(f_esc, text="Add", command=lambda: self.adicionar_transformacao("escalonamento")).pack(side="left", padx=2)
+        tk.Button(f_esc, text="Adicionar", command=lambda: self.adicionar_transformacao("escalonamento")).pack(side="left", padx=2)
 
         tk.Label(f_esq, text="Rotação no Centro do Objeto:", font=("Times New Roman", 10, "bold")).pack(pady=(15,2))
         f_rot = tk.Frame(f_esq); f_rot.pack()
@@ -49,7 +50,7 @@ class JanelaTransformacoes:
         self.ent_ang_c = tk.Entry(f_rot, width=5); self.ent_ang_c.pack(side="left", padx=2)
         self.var_eixo = tk.StringVar(value="X")
         tk.OptionMenu(f_rot, self.var_eixo, "X", "Y", "Z").pack(side="left", padx=2)
-        tk.Button(f_rot, text="Add", command=lambda: self.adicionar_transformacao("rot_centro")).pack(side="left", padx=2)
+        tk.Button(f_rot, text="Adicionar", command=lambda: self.adicionar_transformacao("rot_centro")).pack(side="left", padx=2)
 
         tk.Label(f_esq, text="Rotação no Centro do Mundo (0,0,0):", font=("Times New Roman", 10, "bold")).pack(pady=(15,2))
         f_rot_m = tk.Frame(f_esq); f_rot_m.pack()
@@ -57,7 +58,7 @@ class JanelaTransformacoes:
         self.ent_ang_m = tk.Entry(f_rot_m, width=5); self.ent_ang_m.pack(side="left", padx=2)
         self.var_eixo_m = tk.StringVar(value="X")
         tk.OptionMenu(f_rot_m, self.var_eixo_m, "X", "Y", "Z").pack(side="left", padx=2)
-        tk.Button(f_rot_m, text="Add", command=lambda: self.adicionar_transformacao("rot_mundo")).pack(side="left", padx=2)
+        tk.Button(f_rot_m, text="Adicionar", command=lambda: self.adicionar_transformacao("rot_mundo")).pack(side="left", padx=2)
 
         tk.Label(f_esq, text="Rotação Eixo Arbitrário (Ang, P1x,y,z, P2x,y,z):", font=("Times New Roman", 10, "bold")).pack(pady=(15,2))
         f_arb = tk.Frame(f_esq); f_arb.pack()
@@ -68,7 +69,7 @@ class JanelaTransformacoes:
         self.ent_p2x = tk.Entry(f_arb, width=3); self.ent_p2x.pack(side="left")
         self.ent_p2y = tk.Entry(f_arb, width=3); self.ent_p2y.pack(side="left")
         self.ent_p2z = tk.Entry(f_arb, width=3); self.ent_p2z.pack(side="left")
-        tk.Button(f_arb, text="Add", command=lambda: self.adicionar_transformacao("rot_arb")).pack(side="left")
+        tk.Button(f_arb, text="Adicionar", command=lambda: self.adicionar_transformacao("rot_arb")).pack(side="left")
 
         # =============================
         # fazer lista das transformadas
@@ -118,7 +119,7 @@ class JanelaTransformacoes:
                 self.ent_p1x.delete(0, tk.END); self.ent_p1y.delete(0, tk.END); self.ent_p1z.delete(0, tk.END)
                 self.ent_p2x.delete(0, tk.END); self.ent_p2y.delete(0, tk.END); self.ent_p2z.delete(0, tk.END)
         except ValueError:
-            print("ERRO!")
+            messagebox.showerror("Erro", "Por favor, digite valores numéricos válidos!")
 
     def realizar_transformacoes_forma(self):
         transformacao = TransformarObjetos()
@@ -149,12 +150,21 @@ class JanelaTransformacoes:
             elif tipo == "rot_arb": 
                 m = transformacao.fazer_matriz_rotacao_eixo_arbitrario(op[1], op[2], op[3])
             
-            matriz_acumulada = transformacao.multiplicacao_matrizes(matriz_acumulada, m)            
-            nc = transformacao.multiplicacao_matrizes([[cx, cy, cz, 1]], matriz_acumulada)[0]
+            nc = transformacao.multiplicacao_matrizes([[cx, cy, cz, 1]], m)[0]
             cx, cy, cz = nc[0], nc[1], nc[2]
+
+        matriz_acumulada = transformacao.multiplicacao_matrizes(matriz_acumulada, m)
 
         if getattr(self.elemento, 'tipo', '') == "CAMERA": 
             self.elemento.aplicar_transformacao_3d(matriz_acumulada, transformacao)
+        elif getattr(self.elemento, 'tipo', '') == "curva":
+            # Aplica transformação aos pontos de controle primeiro
+            self.elemento.pontos_controle = transformacao.aplicar_matriz_transformacao(self.elemento.pontos_controle, matriz_acumulada)
+            # Recalcula a curva com os novos pontos
+            if self.elemento.tipo_curva == "bspline":
+                self.elemento.pontos = self.elemento.calcular_b_splines_com_Forward_differences(self.elemento.pontos_controle)
+            else:
+                self.elemento.pontos = self.elemento.calcular_curva_bezier(self.elemento.pontos_controle)
         else: 
             self.elemento.pontos = transformacao.aplicar_matriz_transformacao(self.elemento.pontos, matriz_acumulada)
 

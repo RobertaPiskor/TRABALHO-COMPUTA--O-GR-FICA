@@ -62,7 +62,7 @@ class FormaCurva:
         z_velho = z
         pontos_segmento.append((x_velho, y_velho, z_velho))
         
-        while i < n:
+        while i <= n:
             i += 1
             x = x + dx; dx = dx + ddx; ddx = ddx + dddx
             y = y + dy; dy = dy + ddy; ddy = ddy + dddy

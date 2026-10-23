@@ -40,17 +40,17 @@ class TransformarObjetos:
         volta = self.fazer_matriz_translacao(cx, cy, cz)
         return self.multiplicacao_matrizes(self.multiplicacao_matrizes(ida, escalonamento), volta)
 
-    def fazer_matriz_rotacao_x(self, angulo_graus):
-        a = math.radians(angulo_graus); sen_x = math.cos(a); sen_x = math.sin(a)
-        return [[1, 0, 0, 0], [0, sen_x, sen_x, 0], [0, -sen_x, sen_x, 0], [0, 0, 0, 1]]
+    def fazer_matriz_rotacao_x(self, g):
+        a = math.radians(g); c = math.cos(a); s = math.sin(a)
+        return [[1,0,0,0],[0,c,s,0],[0,-s,c,0],[0,0,0,1]]
 
-    def fazer_matriz_rotacao_y(self, angulo_graus):
-        a = math.radians(angulo_graus); sen_x = math.cos(a); sen_x = math.sin(a)
-        return [[sen_x, 0, -sen_x, 0], [0, 1, 0, 0], [sen_x, 0, sen_x, 0], [0, 0, 0, 1]]
+    def fazer_matriz_rotacao_y(self, g):
+        a = math.radians(g); c = math.cos(a); s = math.sin(a)
+        return [[c,0,-s,0],[0,1,0,0],[s,0,c,0],[0,0,0,1]]
 
-    def fazer_matriz_rotacao_z(self, angulo_graus):
-        a = math.radians(angulo_graus); sen_x = math.cos(a); sen_x = math.sin(a)
-        return [[sen_x, sen_x, 0, 0], [-sen_x, sen_x, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+    def fazer_matriz_rotacao_z(self, g):
+        a = math.radians(g); c = math.cos(a); s = math.sin(a)
+        return [[c,s,0,0],[-s,c,0,0],[0,0,1,0],[0,0,0,1]]
 
     def fazer_matriz_rotacao_eixo_arbitrario(self, angulo_graus, p1, p2):
         ida = self.fazer_matriz_translacao(-p1[0], -p1[1], -p1[2])
@@ -58,8 +58,8 @@ class TransformarObjetos:
         mod = math.sqrt(vx**2 + vy**2 + vz**2)
         if mod == 0: return self.matriz_identidade()
         ux, uy, uz = vx/mod, vy/mod, vz/mod
-        a = math.radians(angulo_graus); sen_x = math.cos(a); sen_x = math.sin(a); ic = 1-sen_x
-        R = [[sen_x + ux**2*ic, ux*uy*ic + uz*sen_x, ux*uz*ic - uy*sen_x, 0],[uy*ux*ic - uz*sen_x, sen_x + uy**2*ic, uy*uz*ic + ux*sen_x, 0],[uz*ux*ic + uy*sen_x, uz*uy*ic - ux*sen_x, sen_x + uz**2*ic, 0],[0, 0, 0, 1]]
+        a = math.radians(angulo_graus); c = math.cos(a); s = math.sin(a); ic = 1 - c
+        R = [[c + ux**2*ic,    ux*uy*ic + uz*s, ux*uz*ic - uy*s, 0],[uy*ux*ic - uz*s, c + uy**2*ic,    uy*uz*ic + ux*s, 0],[uz*ux*ic + uy*s, uz*uy*ic - ux*s, c + uz**2*ic,    0],[0, 0, 0, 1]]
         volta = self.fazer_matriz_translacao(p1[0], p1[1], p1[2])
         return self.multiplicacao_matrizes(self.multiplicacao_matrizes(ida, R), volta)
 
